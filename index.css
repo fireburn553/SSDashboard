@@ -1,0 +1,7 @@
+:root {
+  --bs-primary: #D62828;   /* PRC Red */
+  --bs-secondary: #0077B6; /* PRC Accent Blue */
+  --bs-light: #F5F5F5;     /* PRC Gray */
+  --bs-dark: #1B1B1B;      /* PRC Dark */
+  --bs-white: #FFFFFF;     /* PRC White */
+}
