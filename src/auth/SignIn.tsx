@@ -2,7 +2,7 @@ import Button from "../components/Button";
 
 function SignIn() {
   return (
-    <>
+    <div>
       <div className="d-flex justify-content-center align-items-center vh-100">
         <div
           className="border border-black p-4 bg-light rounded"
@@ -45,7 +45,7 @@ function SignIn() {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 

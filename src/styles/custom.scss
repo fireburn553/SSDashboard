@@ -1,0 +1,10 @@
+// Override before importing bootstrap
+$primary: #E41E26; // Red (Main actions buttons, highlights)
+$secondary: #002147; // Navy Blue (Headers, sidebar, navigation)
+$light: #F4F4F4;    // Light Gray (Background)
+$dark: #333333;     // Dark Gray (Text and Icons)
+$success: #28A745;  // Green (completed training, valid certificate)
+$warning: #FFC107;  // Amber (Wardnings or pending status)
+
+// Import Bootstrap with overrides
+@import "bootstrap/scss/bootstrap";
