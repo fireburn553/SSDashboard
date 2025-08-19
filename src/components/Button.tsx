@@ -15,7 +15,10 @@ interface ButtonProps {
 
 function Button({ children, color, onClick, size }: ButtonProps) {
   return (
-    <button className={"btn btn-" + color + " w-" + size} onClick={onClick}>
+    <button
+      className={"btn btn-" + color + " w-" + size + " mt-3"}
+      onClick={onClick}
+    >
       {children}
     </button>
   );

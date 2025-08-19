@@ -1,10 +1,11 @@
 import "./App.css";
-import SignIn from "./components/SignIn";
+import SignUp from "./auth/SignUp";
+// import LocationSelector from "./components/LocationSelector";
 
 function App() {
   return (
     <>
-      <SignIn />
+      <SignUp />
     </>
   );
 }
