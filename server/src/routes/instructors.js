@@ -3,86 +3,50 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 const pool = require("../database"); // Adjust if your db export is different
 
-router.post("/instructor", async (req, res) => {
+//register a class
+// POST /api/instructors/class
+router.put("/class", async (req, res) => {
   const {
-    user_fname,
-    user_mname,
-    user_lname,
-    user_bday,
-    user_complete_address,
-    user_region,
-    user_province,
-    user_submunicipality,
-    user_municipality_city,
-    user_barangay,
-    user_email,
-    user_password,
-    user_authority_number,
-    gender_id,
-    account_status_id,
+    class_start_date,
+    class_end_date,
+    class_final_evaluation_date,
+    class_number,
+    class_total_hours,
+    class_total_days,
+    user_id,
+    training_location_id,
+    cso_id,
+    course_id,
   } = req.body;
 
-  // Set instructor role_id (replace with actual value from your role table)
-  const instructorRoleId = 2;
-
   try {
-    // Hash password
-    const hashedPassword = await bcrypt.hash(user_password, 10);
-
     const result = await pool.query(
       `INSERT INTO users (
-                user_fname, user_mname, user_lname, user_bday, user_complete_address,
-                user_region, user_province, user_submunicipality, user_municipality_city,
-                user_barangay, user_email, user_password, user_authority_number,
-                role_id, gender_id, account_status_id
-            ) VALUES (
-                $1, $2, $3, $4, $5,
-                $6, $7, $8, $9,
-                $10, $11, $12, $13,
-                $14, $15, $16
-            ) RETURNING user_id`,
+      class_start_date, class_end_date, class_final_evaluation_date, class_number, class_total_hours, class_total_days, user_id, training_location_id, cso_id, course_id) 
+      VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING class_id`,
       [
-        user_fname,
-        user_mname,
-        user_lname,
-        user_bday,
-        user_complete_address,
-        user_region,
-        user_province,
-        user_submunicipality,
-        user_municipality_city,
-        user_barangay,
-        user_email,
-        hashedPassword,
-        user_authority_number,
-        instructorRoleId,
-        gender_id,
-        account_status_id,
+        class_start_date,
+        class_end_date,
+        class_final_evaluation_date,
+        class_number,
+        class_total_hours,
+        class_total_days,
+        user_id,
+        training_location_id,
+        cso_id,
+        course_id,
       ]
     );
 
     res.status(201).json({
-      user_id: result.rows[0].user_id,
-      message: "Instructor account created",
+      class_id: result.rows[0].class_id,
+      message: "Class created",
     });
-  } catch (err) {
-    if (err.code === "23505") {
-      // unique_violation
-      res.status(409).json({ message: "Email already exists" });
-    } else {
-      res.status(500).json({ message: "Server error" });
-    }
-  }
-});
-
-
-router.get("/instructor", async (req, res) => {
-  try {
-    const result = await pool.query("SELECT * FROM users;");
-    res.json(result.rows);
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }
 });
+
+//retrieve a class
 
 module.exports = router;

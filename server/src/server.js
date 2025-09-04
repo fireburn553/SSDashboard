@@ -1,15 +1,6 @@
-/* ******************************************
- * This server.js file is the primary file of the
- * application. It is used to control the project.
- *******************************************/
-const session = require("express-session");
-const pool = require("./database/");
-/* ***********************
- * Require Statements
- *************************/
-const cookieParser = require("cookie-parser");
 const express = require("express");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 require("dotenv").config();
 
 const authMiddleware = require("./middleware/auth");
@@ -17,24 +8,29 @@ const roleMiddleware = require("./middleware/role");
 
 const authRoutes = require("./routes/auth");
 const attendanceRoutes = require("./routes/attendance");
-const instructorsRoutes = require('./routes/instructors');
-/* ***********************
- * Middleware
- * ************************/
+const instructorsRoutes = require("./routes/instructors");
+const adminRoutes = require("./routes/admin");
+
 const app = express();
-app.use(cors());
+
+// Allow cookies across origins
+app.use(
+  cors({
+    origin: "http://localhost:3000", // your frontend URL
+    credentials: true,
+  })
+);
+
 app.use(express.json());
-/* ***********************
- * Routes
- *************************/
-app.use("/api", authRoutes);
-// app.use(
-//   "/api/attendance",
-//   authMiddleware,
-//   roleMiddleware("Admin"),
-//   attendanceRoutes
-// );
-app.use('/api/instructors', instructorsRoutes);
+app.use(cookieParser());
+
+/* Public routes */
+app.use("/api", authRoutes); // login/register
+app.use("/api/admin", adminRoutes);
+
+/* Protected routes */
+app.use(authMiddleware);
+app.use("/api/instructor", instructorsRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
