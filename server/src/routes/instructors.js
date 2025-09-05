@@ -1,7 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../database");
-const { validateClassInput, validateIdParam } = require("../middleware/validateInput");
+const {
+  validateClassInput,
+  validateIdParam,
+} = require("../utils/validateInput");
 
 // Register a class
 router.post("/class", validateClassInput, async (req, res) => {
@@ -79,10 +82,23 @@ router.put("/class/:id/conclude", validateIdParam, async (req, res) => {
       return res.status(404).json({ message: "Class not found" });
     }
 
-    res.json({ message: "Class successfully concluded", class: result.rows[0] });
+    res.json({
+      message: "Class successfully concluded",
+      class: result.rows[0],
+    });
   } catch (err) {
     res.status(500).json({ message: "Server error" });
   }
 });
+
+//generate link for the frontend
+router.get("/class/:id/invite-link", async (req, res) => {
+  const { id } = req.params;
+  const link = `${process.env.FRONTEND_URL}/register/${id}`;
+
+  res.json({ link });
+});
+
+
 
 module.exports = router;

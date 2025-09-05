@@ -10,6 +10,7 @@ const authRoutes = require("./routes/auth");
 const attendanceRoutes = require("./routes/attendance");
 const instructorsRoutes = require("./routes/instructors");
 const adminRoutes = require("./routes/admin");
+const participantsRoutes = require("./routes/participant");
 
 const app = express();
 
@@ -31,6 +32,7 @@ app.use("/api/admin", adminRoutes);
 /* Protected routes */
 app.use(authMiddleware);
 app.use("/api/instructor", instructorsRoutes);
+app.use("/api/participant", participantsRoutes);
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
