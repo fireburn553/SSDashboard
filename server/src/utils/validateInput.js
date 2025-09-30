@@ -41,7 +41,7 @@ const validateIdParam = [
   param("id")
     .isInt({ min: 1 }) // minimum 1, so no zero or negatives
     .withMessage("ID must be a positive integer"),
-    
+
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -50,5 +50,7 @@ const validateIdParam = [
     next();
   },
 ];
+
+
 
 module.exports = { validateClassInput, validateIdParam };

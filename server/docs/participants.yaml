@@ -1,0 +1,82 @@
+paths:
+  /api/register/{id}:
+    post:
+      summary: Register a participant to a class
+      tags: [Participants]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                  example: Maria
+                last_name:
+                  type: string
+                  example: Santos
+                birthday:
+                  type: string
+                  format: date
+                  example: 1995-05-12
+                email:
+                  type: string
+                  example: maria@example.com
+      responses:
+        "201":
+          description: Participant registered
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  pax_id:
+                    type: integer
+                    example: 25
+                  message:
+                    type: string
+
+  /api/csos:
+    get:
+      summary: Get all CSOs
+      tags: [Participants]
+      responses:
+        "200":
+          description: List of CSOs
+
+    post:
+      summary: Add a new CSO
+      tags: [Participants]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cso_name:
+                  type: string
+                  example: Example CSO
+                cso_type:
+                  type: string
+                  example: NGO
+      responses:
+        "201":
+          description: CSO added
+        "409":
+          description: CSO already exists
+
+  /api/hea:
+    get:
+      summary: Get all highest education attainment options
+      tags: [Participants]
+      responses:
+        "200":
+          description: List of HEA

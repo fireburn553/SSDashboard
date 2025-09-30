@@ -1,0 +1,178 @@
+paths:
+  /api/class:
+    post:
+      summary: Register a new class
+      tags: [Classes]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                class_start_date:
+                  type: string
+                  format: date
+                  example: 2025-01-01
+                class_end_date:
+                  type: string
+                  format: date
+                  example: 2025-01-10
+                class_number:
+                  type: string
+                  example: CLS-2025-001
+                class_total_hours:
+                  type: integer
+                  example: 40
+                class_total_days:
+                  type: integer
+                  example: 10
+                user_id:
+                  type: integer
+                  example: 5
+                training_location_id:
+                  type: integer
+                  example: 2
+                cso_id:
+                  type: integer
+                  example: 1
+                course_id:
+                  type: integer
+                  example: 3
+                instructors:
+                  type: array
+                  items:
+                    type: integer
+                  example: [6, 7]
+      responses:
+        "201":
+          description: Class created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  class_id:
+                    type: integer
+                    example: 10
+                  message:
+                    type: string
+                    example: Class created with instructors
+
+  /api/class/active/{id}:
+    get:
+      summary: Retrieve all active classes for a user
+      tags: [Classes]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Active classes list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+
+  /api/class/{id}/conclude:
+    put:
+      summary: Conclude a class
+      tags: [Classes]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Class concluded
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Class successfully concluded
+
+  /api/class/{id}/invite-link:
+    get:
+      summary: Generate an invite link for participants
+      tags: [Classes]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Invite link generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  link:
+                    type: string
+                    example: https://frontend.com/register/10
+
+  /api/class/{id}:
+    get:
+      summary: Get detailed class info with instructors and participants
+      tags: [Classes]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Detailed class info
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  course_name:
+                    type: string
+                    example: Basic Training
+                  establishment_name:
+                    type: string
+                    example: Training Center A
+                  class_start_date:
+                    type: string
+                    format: date
+                  class_end_date:
+                    type: string
+                    format: date
+                  co_instructors:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        user_id:
+                          type: integer
+                        instructor_fname:
+                          type: string
+                  participants:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        pax_id:
+                          type: integer
+                        pax_fname:
+                          type: string
+                        pax_lname:
+                          type: string
+                        pax_remarks:
+                          type: string
+                          example: passed

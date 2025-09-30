@@ -1,0 +1,92 @@
+paths:
+  /api/login:
+    post:
+      summary: Login a user and receive a JWT token
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  example: user@example.com
+                password:
+                  type: string
+                  example: mypassword
+      responses:
+        "200":
+          description: Successful login
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    type: object
+                    properties:
+                      user_id:
+                        type: integer
+                        example: 1
+                      email:
+                        type: string
+                        example: user@example.com
+                      role:
+                        type: string
+                        example: Instructor
+        "401":
+          description: Invalid credentials
+        "403":
+          description: Account not approved
+
+  /api/logout:
+    post:
+      summary: Logout user
+      tags: [Authentication]
+      responses:
+        "200":
+          description: Logged out successfully
+
+  /api/register:
+    post:
+      summary: Register a new instructor account
+      tags: [Authentication]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_fname:
+                  type: string
+                  example: Juan
+                user_lname:
+                  type: string
+                  example: Dela Cruz
+                user_email:
+                  type: string
+                  example: juan@example.com
+                user_password:
+                  type: string
+                  example: password123
+                user_bday:
+                  type: string
+                  format: date
+                  example: 1990-01-01
+                user_complete_address:
+                  type: string
+                  example: Manila, Philippines
+                user_authority_number:
+                  type: string
+                  example: AUTH12345
+                gender_id:
+                  type: integer
+                  example: 1
+      responses:
+        "201":
+          description: Instructor account created (pending approval)
+        "409":
+          description: Email already exists

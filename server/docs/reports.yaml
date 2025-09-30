@@ -1,0 +1,21 @@
+paths:
+  /api/{id}/report:
+    get:
+      summary: Generate a PDF report for a class
+      tags: [Reports]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: PDF file with class report
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: Class not found
