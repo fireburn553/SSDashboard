@@ -26,7 +26,10 @@ router.post("/login", async (req, res) => {
     const user = userResult.rows[0];
 
     // Check if account is approved
-    if (user.account_status_name !== "Approved") {
+    if (
+      user.account_status_name == "Pending" &&
+      user.account_status_name == "Suspended"
+    ) {
       return res.status(403).json({
         message: `Account not approved. Current status: ${user.account_status_name}`,
       });
@@ -54,7 +57,7 @@ router.post("/login", async (req, res) => {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 60 * 60 * 1000,
+      maxAge: 10 * 1000,
     });
 
     res.json({ user: { ...user, user_password: undefined } }); // don’t send password back
@@ -136,6 +139,18 @@ router.post("/register", async (req, res) => {
       console.error("Registration error:", err); // 👈 log real error
       res.status(500).json({ message: "Server error" });
     }
+  }
+});
+
+router.get("/check-auth", (req, res) => {
+  try {
+    const token = req.cookies.token;
+    if (!token) return res.status(401).json({ message: "No token" });
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    res.json({ valid: true, user: decoded });
+  } catch {
+    res.status(401).json({ message: "Invalid or expired token" });
   }
 });
 
