@@ -35,7 +35,7 @@ export default function LandingPage() {
           </a>
 
           <a
-            href="/register"
+            href="/signup"
             className="btn btn-lg"
             style={{
               backgroundColor: "#28A745", // Green button
