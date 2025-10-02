@@ -1,0 +1,44 @@
+paths:
+  /api/admin:
+    get:
+      summary: Get all instructors
+      tags: [Admin]
+      responses:
+        "200":
+          description: List of instructors
+
+  /api/admin/instructors/pending:
+    get:
+      summary: Get all pending instructors
+      tags: [Admin]
+      responses:
+        "200":
+          description: List of pending instructors
+
+  /api/admin/instructors/{id}/approve:
+    put:
+      summary: Approve an instructor
+      tags: [Admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Instructor approved
+
+  /api/admin/instructors/{id}/reject:
+    put:
+      summary: Reject an instructor
+      tags: [Admin]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Instructor rejected

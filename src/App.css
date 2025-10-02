@@ -1,0 +1,21 @@
+/* Adjust these values to match your header/footer heights */
+.main-content {
+  padding-top: 72px;    /* Height of header */
+  padding-bottom: 56px; /* Height of footer */
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* Optional: Add a subtle background and rounded corners to main content */
+.main-content {
+  background: #f8f9fa;
+  border-radius: 12px;
+  margin: 0 auto;
+  max-width: 1200px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+/* Make sure header/footer have a shadow for separation */
+.fixed-top, .fixed-bottom {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}

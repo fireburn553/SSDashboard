@@ -1,0 +1,40 @@
+paths:
+  /api/grades/{pax_id}/grades:
+    put:
+      summary: Update participant grades
+      tags: [Grades]
+      parameters:
+        - name: pax_id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                knowledge:
+                  type: integer
+                  example: 85
+                skills:
+                  type: integer
+                  example: 90
+                remarks:
+                  type: string
+                  enum: [passed, failed, drop]
+                  example: passed
+      responses:
+        "200":
+          description: Grades updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  participant:
+                    type: object

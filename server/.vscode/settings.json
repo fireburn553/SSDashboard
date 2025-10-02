@@ -1,0 +1,17 @@
+{
+    "sqltools.connections": [
+        {
+            "pgOptions": {
+                "ssl": {
+                    "rejectUnauthorized": true
+                }
+            },
+            "previewLimit": 50,
+            "server": "localhost",
+            "driver": "PostgreSQL",
+            "connectString": "postgresql://sstd:VCIvdIrrUdqMtw6veFh3CZY2hTZ5OEBM@dpg-d2navc63jp1c73cej2qg-a.singapore-postgres.render.com/fat",
+            "name": "sstd",
+            "connectionTimeout": 50
+        }
+    ]
+}
