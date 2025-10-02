@@ -2,12 +2,14 @@ import "./App.css";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
-import Signin from "./auth/SignIn";
+import Signin from "./auth/Signin";
 import SignUp from "./auth/SignUp";
 import InstructorHome from "./pages/InstructorHome";
+import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./auth/ProtectedRoute";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import { useAuth } from "./auth/AuthContext";
+import ParticipantRegistration from "./pages/ParticipantRegistration";
 
 function App() {
   const { isLoggedIn } = useAuth();
@@ -19,9 +21,13 @@ function App() {
       </header>
       <main className="main-content bg-light">
         <Routes>
-          {!isLoggedIn && <Route path="/" element={<Home />} />}
-          {!isLoggedIn && <Route path="/signin" element={<Signin />} />}
-          {!isLoggedIn && <Route path="/signup" element={<SignUp />} />}
+          <Route path="/" element={<Home />} />
+          <Route path="/signin" element={<Signin />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route
+            path="/register/invite/:inviteToken"
+            element={<ParticipantRegistration />}
+          />
           <Route
             path="/instructor"
             element={
@@ -30,13 +36,7 @@ function App() {
               </ProtectedRoute>
             }
           />
-          {/* Redirect all other routes */}
-          <Route
-            path="*"
-            element={
-              <Navigate to={isLoggedIn ? "/instructor" : "/signin"} replace />
-            }
-          />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
       <footer className="fixed-bottom shadow">

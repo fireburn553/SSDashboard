@@ -26,7 +26,7 @@ function Signin() {
 
       if (response.ok) {
         // ✅ Call login() from AuthContext to update state and localStorage
-        login();
+        login(data.user); // Pass the user data received from the backend
 
         // ✅ Redirect to protected route
         navigate("/instructor", { replace: true });
