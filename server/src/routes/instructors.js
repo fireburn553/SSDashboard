@@ -114,11 +114,67 @@ router.put("/class/:id/conclude", validateIdParam, async (req, res) => {
 });
 
 //generate link for the frontend
-router.get("/class/:id/invite-link", async (req, res) => {
-  const { id } = req.params;
-  const link = `${process.env.FRONTEND_URL}/register/${id}`;
+router.post("/class/:id/invite-link", async (req, res, next) => {
+  const { id: classId } = req.params;
 
-  res.json({ link });
+  try {
+    // Check if a link already exists for this class
+    let result = await pool.query(
+      `SELECT token FROM class_invitations WHERE class_id = $1`,
+      [classId]
+    );
+
+    let token;
+    if (result.rows.length > 0) {
+      // If a token exists, use that one
+      token = result.rows[0].token;
+    } else {
+      // If not, create a new one
+      token = crypto.randomBytes(32).toString("hex");
+      await pool.query(
+        `INSERT INTO class_invitations (class_id, token, is_active) VALUES ($1, $2, TRUE)`,
+        [classId, token]
+      );
+    }
+
+    const link = `${process.env.FRONTEND_URL}/register/invite/${token}`;
+    res.json({ link });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.put("/class/:id/invite-status", async (req, res, next) => {
+  const { id: classId } = req.params;
+  const { isActive } = req.body; // Frontend will send { "isActive": true } or { "isActive": false }
+
+  if (typeof isActive !== "boolean") {
+    return res
+      .status(400)
+      .json({ message: "Invalid 'isActive' value provided." });
+  }
+
+  try {
+    const result = await pool.query(
+      `UPDATE class_invitations SET is_active = $1 WHERE class_id = $2 RETURNING is_active`,
+      [isActive, classId]
+    );
+
+    if (result.rowCount === 0) {
+      return res
+        .status(404)
+        .json({
+          message: "No invitation link found for this class to update.",
+        });
+    }
+
+    res.json({
+      message: `Registration is now ${isActive ? "OPEN" : "CLOSED"}.`,
+      isActive: result.rows[0].is_active,
+    });
+  } catch (err) {
+    next(err);
+  }
 });
 
 router.get("/class/:id", async (req, res) => {

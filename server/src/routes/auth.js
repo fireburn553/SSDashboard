@@ -3,10 +3,12 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const pool = require("../database"); // Adjust if your db export is different
+const { sanitizeString } = require("../utils/validateInput");
 
-router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
+router.post("/login", async (req, res, next) => {
   try {
+    const { email, password } = req.body;
+
     const userResult = await pool.query(
       `SELECT u.user_id, u.user_email, u.user_password,
               r.role_name AS role, r.role_id, 
@@ -20,25 +22,32 @@ router.post("/login", async (req, res) => {
     );
 
     if (userResult.rows.length === 0) {
-      return res.status(401).json({ message: "Invalid credentials" });
+      return res.status(401).json({
+        success: false,
+        message: "Invalid email or password.",
+      });
     }
 
     const user = userResult.rows[0];
 
     // Check if account is approved
     if (
-      user.account_status_name == "Pending" &&
-      user.account_status_name == "Suspended"
+      user.account_status_name === "Pending" ||
+      user.account_status_name === "Suspended"
     ) {
       return res.status(403).json({
-        message: `Account not approved. Current status: ${user.account_status_name}`,
+        success: false,
+        message:
+          "Your account is currently inactive. Please contact an administrator.",
       });
     }
 
     // Validate password
     const valid = await bcrypt.compare(password, user.user_password);
     if (!valid) {
-      return res.status(401).json({ message: "Invalid credentials" });
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid email or password." });
     }
 
     // Generate JWT
@@ -62,7 +71,7 @@ router.post("/login", async (req, res) => {
 
     res.json({ user: { ...user, user_password: undefined } }); // don’t send password back
   } catch (err) {
-    res.status(500).json({ message: "Server error" });
+    next(err);
   }
 });
 
