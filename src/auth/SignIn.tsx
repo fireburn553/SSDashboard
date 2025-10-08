@@ -23,18 +23,25 @@ function Signin() {
       });
 
       const data = await response.json();
-
-      if (response.ok) {
-        // ✅ Call login() from AuthContext to update state and localStorage
-        login(data.user); // Pass the user data received from the backend
-
-        // ✅ Redirect to protected route
-        navigate("/instructor", { replace: true });
-      } else {
-        setError(data.message || "Sign in failed");
+      if (!response.ok) {
+        throw new Error(data.message || "Login failed.");
       }
-    } catch (err) {
-      setError("Network error");
+
+      // ✅ Call login() from AuthContext to update state and localStorage
+      login(data.user); // Pass the user data received from the backend
+      const userRole = data.user.role;
+      // ✅ Redirect to protected route
+      if (userRole === "Admin") {
+        navigate("/admin/approvals"); // Or your main admin dashboard route
+      } else if (userRole === "Instructor") {
+        navigate("/instructor");
+      } else {
+        // Fallback for any other roles or unexpected cases
+        navigate("/");
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      setError(err.message);
       console.error(err);
     }
   };

@@ -1,19 +1,17 @@
+import { Link, NavLink } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 
-interface HeaderProps {
-  signIn: boolean; // pass this as a prop (true/false depending on login state)
-}
-
-function Header({ signIn }: HeaderProps) {
-  const { logout } = useAuth();
+function Header() {
+  // Get everything we need from the AuthContext
+  const { isLoggedIn, user, logout } = useAuth();
 
   return (
     <header className="navbar navbar-expand-lg bg-secondary p-3">
       <div className="container-fluid">
         {/* Left side - Logo/Title */}
-        <a className="navbar-brand text-white fw-bold" href="/">
+        <Link className="navbar-brand text-white fw-bold" to="/">
           Safety Service Dashboard
-        </a>
+        </Link>
 
         {/* Navbar toggle (for mobile view) */}
         <button
@@ -28,27 +26,46 @@ function Header({ signIn }: HeaderProps) {
           <span className="navbar-toggler-icon"></span>
         </button>
 
-        {/* Conditional Rendering */}
+        {/* Right side - Navigation Links */}
         <div
           className="collapse navbar-collapse justify-content-end"
           id="navbarSupportedContent"
         >
-          <ul className="navbar-nav mb-2 mb-lg-0">
-            {!signIn ? (
-              // Show Sign In if not logged in
+          <ul className="navbar-nav mb-2 mb-lg-0 align-items-center">
+            {!isLoggedIn ? (
+              // ### SHOW SIGN IN IF NOT LOGGED IN ###
               <li className="nav-item">
-                <a
-                  className="nav-link active text-white"
-                  aria-current="page"
-                  href="/signin"
-                >
+                <Link className="nav-link active text-white" to="/signin">
                   Sign In
-                </a>
+                </Link>
               </li>
             ) : (
-              // Show navigation if logged in
+              // ### SHOW ROLE-BASED NAVIGATION IF LOGGED IN ###
               <>
-                <li className="nav-item">
+                {/* Admin-Only Links */}
+                {user?.role === "Admin" && (
+                  <li className="nav-item">
+                    {/* This is now a single link to the main admin dashboard */}
+                    <NavLink className="nav-link" to="/admin">
+                      Admin Dashboard
+                    </NavLink>
+                  </li>
+                )}
+
+                {/* Instructor-Only Links */}
+                {user?.role === "Instructor" && (
+                  <li className="nav-item">
+                    <Link className="nav-link text-white" to="/instructor">
+                      My Dashboard
+                    </Link>
+                  </li>
+                )}
+
+                {/* Welcome Message & Logout Button for all logged-in users */}
+                <li className="nav-item ms-lg-3">
+                  <span className="navbar-text text-white me-3">
+                    Welcome, {user?.user_fname}!
+                  </span>
                   <button className="btn btn-outline-light" onClick={logout}>
                     Logout
                   </button>
