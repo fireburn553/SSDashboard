@@ -30,11 +30,23 @@ router.post("/login", async (req, res, next) => {
 
     const user = userResult.rows[0];
 
-    // Check if account is approved
-    if (
-      user.account_status_name === "Pending" ||
-      user.account_status_name === "Suspended"
-    ) {
+    // --- THIS IS THE UPDATED LOGIC ---
+    // Now checks for all inactive/disallowed statuses
+    const disallowedStatuses = ["Pending", "Suspended", "Rejected", "Disabled"];
+
+    if (disallowedStatuses.includes(user.account_status_name)) {
+      // Send a specific message if the account is disabled or rejected
+      if (
+        user.account_status_name === "Disabled" ||
+        user.account_status_name === "Rejected"
+      ) {
+        return res.status(403).json({
+          success: false,
+          message:
+            "Your account is currently disabled. Please contact an administrator.",
+        });
+      }
+      // Send a different message for pending/suspended accounts
       return res.status(403).json({
         success: false,
         message:
@@ -50,13 +62,14 @@ router.post("/login", async (req, res, next) => {
         .json({ success: false, message: "Invalid email or password." });
     }
 
-    // Generate JWT
+    // Generate JWT (No changes here)
     const token = jwt.sign(
       {
-        id: user.user_id,
+        user_id: user.user_id,
         email: user.user_email,
         role: user.role,
         role_id: user.role_id,
+        user_fname: user.user_fname, // Include first name in token for header
       },
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
@@ -69,7 +82,7 @@ router.post("/login", async (req, res, next) => {
       maxAge: 60 * 60 * 1000,
     });
 
-    res.json({ user: { ...user, user_password: undefined } }); // don’t send password back
+    res.json({ user: { ...user, user_password: undefined } });
   } catch (err) {
     next(err);
   }
