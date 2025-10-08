@@ -22,6 +22,7 @@ function buildReportHTML(classData) {
 
   const participantRows = participants
     .map((p, idx) => {
+      console.log("Participant Data:", p); // Debugging line
       const age = p.pax_bday
         ? new Date().getFullYear() - new Date(p.pax_bday).getFullYear()
         : "";
@@ -29,8 +30,8 @@ function buildReportHTML(classData) {
       <tr>
         <td style="text-align:left;">
           <span class="bold">${idx + 1}. ${p.pax_lname.toUpperCase()}, ${
-        p.pax_fname
-      } ${p.pax_mname || ""}<br></span>
+        p.pax_fname.toUpperCase()
+      } ${p.pax_mname.toUpperCase() || ""}<br></span>
           ${p.pax_address || ""}<br>
           ${p.pax_number || ""}
         </td>
@@ -181,7 +182,7 @@ ${numberToWords(
         <div>Chapter Name: <u class="bold">Camarines Norte Chapter</u> </div>
         <div>City/Province: <u class="bold">Daet, Camarines Norte</u></div>
         <div>Class Number: <u class="bold">${classData.class_number}</u></div>
-        <div>Date Forwarded: <u class="bold">xxx</u></div>
+        <div>Date Forwarded: <u class="bold">______________________</u></div>
       </div>
       <p>Remarks:</p>
       <div class="center"><u>${statement}</u></div>

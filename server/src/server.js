@@ -15,12 +15,13 @@ const reportRoutes = require("./routes/reports");
 const setupSwagger = require("./swagger"); // import swagger.js
 const rateLimit = require("express-rate-limit");
 const helmet = require("helmet");
+const certificateRoutes = require("./routes/certificates");
 
 const app = express();
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Limit each IP to 100 requests per windowMs
+  max: 10000, // Limit each IP to 100 requests per windowMs
   standardHeaders: true,
   legacyHeaders: false,
 });
@@ -45,16 +46,12 @@ app.use("/api/participant", participantsRoutes);
 
 app.use(authMiddleware);
 /* Protected routes */
-app.use(
-  "/api/instructor",
-  authMiddleware,
-  roleMiddleware(["Instructor"]),
-  instructorsRoutes
-);
-app.use("/api/admin", authMiddleware, roleMiddleware(["Admin"]), adminRoutes);
-app.use("/api/participant", gradesRoutes);
+app.use("/api/admin", roleMiddleware(["Admin"]), adminRoutes);
+app.use("/api/instructor", roleMiddleware(["Instructor"]), instructorsRoutes);
+app.use("/api/grades", gradesRoutes);
 app.use("/api/report", reportRoutes);
 app.use(errorHandler);
+app.use("/api/certificates", certificateRoutes);
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
