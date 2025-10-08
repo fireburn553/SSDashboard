@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useLocationSelector } from "../hooks/useLocationSelector";
+import { useLocationSelector } from "../../hooks/useLocationSelector";
 
 interface Gender {
   id: number;
@@ -15,6 +15,11 @@ interface HEA {
 interface CSO {
   cso_id: number;
   cso_name: string;
+}
+
+interface ClassInfo {
+  class_id: number;
+  course_name: string;
 }
 
 function ParticipantRegistration() {
@@ -50,12 +55,17 @@ function ParticipantRegistration() {
     company_school_organization_id: "",
   });
 
+  const [pageState, setPageState] = useState<
+    "loading" | "form" | "error" | "success"
+  >("loading");
+  const [classInfo, setClassInfo] = useState<ClassInfo | null>(null); // To store the class name
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+
   const [heas, setHeas] = useState<HEA[]>([]);
   const [csos, setCsos] = useState<CSO[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
-
   // Location hooks
   const {
     regions,
@@ -71,22 +81,43 @@ function ParticipantRegistration() {
 
   // Fetch HEA and CSO data
   useEffect(() => {
-    const fetchOptions = async () => {
+    const validateTokenAndFetchData = async () => {
       try {
-        const heaRes = await fetch("http://localhost:5000/api/participant/hea");
-        const heaData = await heaRes.json();
-        setHeas(heaData);
-        const csoRes = await fetch(
-          "http://localhost:5000/api/participant/csos"
+        // First, check if the token is valid
+        const validationRes = await fetch(
+          `http://localhost:5000/api/participant/invite/${inviteToken}`
         );
+        const validationData = await validationRes.json();
+
+        if (!validationRes.ok) {
+          throw new Error(validationData.message);
+        }
+
+        setClassInfo(validationData);
+
+        // If token is valid, fetch the dropdown options
+        const [heaRes, csoRes] = await Promise.all([
+          fetch("http://localhost:5000/api/participant/hea"),
+          fetch("http://localhost:5000/api/participant/csos"),
+        ]);
+
+        const heaData = await heaRes.json();
         const csoData = await csoRes.json();
+
+        setHeas(heaData);
         setCsos(csoData);
-      } catch (err) {
-        console.error("❌ Failed to fetch options:", err);
+
+        // Everything loaded successfully, show the form
+        setPageState("form");
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (err: any) {
+        setErrorMessage(err.message || "An unknown error occurred.");
+        setPageState("error");
       }
     };
-    fetchOptions();
-  }, []);
+
+    validateTokenAndFetchData();
+  }, [inviteToken]);
 
   // Handle field change
   const handleChange = (
@@ -146,12 +177,31 @@ function ParticipantRegistration() {
     }
   };
 
-  if (successMessage) {
+  if (pageState === "loading") {
+    return (
+      <div className="container mt-5 text-center">
+        <h4>Loading...</h4>
+      </div>
+    );
+  }
+
+  if (pageState === "success") {
     return (
       <div className="container mt-5">
         <div className="alert alert-success">
           <h2>Success!</h2>
           <p>{successMessage}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (pageState === "error") {
+    return (
+      <div className="container mt-5">
+        <div className="alert alert-danger">
+          <h2>Registration Unavailable</h2>
+          <p>{errorMessage}</p>
         </div>
       </div>
     );
@@ -163,7 +213,14 @@ function ParticipantRegistration() {
       style={{ minHeight: "90vh" }}
     >
       <div className="card shadow p-4" style={{ maxWidth: 800, width: "100%" }}>
-        <h2 className="mb-4 text-center">Participant Registration</h2>
+        <div className="text-center mb-4">
+          <h2>Participant Registration</h2>
+          {classInfo && (
+            <p className="lead">
+              You are registering for: <strong>{classInfo.course_name}</strong>
+            </p>
+          )}
+        </div>
         <form onSubmit={handleSubmit}>
           {/* Names */}
           <div className="row">

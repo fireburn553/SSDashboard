@@ -13,10 +13,14 @@ interface ParticipantGrade {
 
 // Define the props the component will accept
 interface GradingTableProps {
-  participants: any[]; // Use the detailed participant type from your ManageClass page
+  participants: any[];
+  isReadOnly: boolean; // Add this new prop
 }
 
-const GradingTable: React.FC<GradingTableProps> = ({ participants }) => {
+const GradingTable: React.FC<GradingTableProps> = ({
+  participants,
+  isReadOnly,
+}) => {
   const { fetchWithAuth } = useAuth();
 
   // State for the grades being edited
@@ -24,9 +28,13 @@ const GradingTable: React.FC<GradingTableProps> = ({ participants }) => {
   // State for the configurable passing average
   const [passingAverage, setPassingAverage] = useState<number>(75);
   // State to track the saving status for each row
-  const [savingStatus, setSavingStatus] = useState<{
-    [key: number]: "idle" | "saving" | "saved" | "error";
-  }>({});
+  // Track which row is currently being edited. `null` means no row is in edit mode.
+  const [editingRowId, setEditingRowId] = useState<number | null>(null);
+  // Store a backup of the row's data when editing starts, for the cancel functionality.
+  const [originalRowData, setOriginalRowData] =
+    useState<ParticipantGrade | null>(null);
+  // Track the saving status for the row currently being saved.
+  const [isSaving, setIsSaving] = useState(false);
 
   // Initialize the grading state when the participants prop changes
   useEffect(() => {
@@ -35,19 +43,12 @@ const GradingTable: React.FC<GradingTableProps> = ({ participants }) => {
       pax_name: `${p.pax_fname} ${p.pax_lname}`,
       knowledge: p.pax_knowledge,
       skills: p.pax_skills,
-      remarks: p.pax_remarks || "auto", // Default to 'auto' if no remark is set
+      remarks: p.pax_remarks || "auto",
     }));
     setGrades(initialGrades);
-
-    // Initialize saving status for all participants
-    const initialSavingStatus: { [key: number]: "idle" } = {};
-    participants.forEach((p) => {
-      initialSavingStatus[p.pax_id] = "idle";
-    });
-    setSavingStatus(initialSavingStatus);
   }, [participants]);
 
-  // Handle changes to input fields (knowledge, skills, remarks)
+  // Handle changes to input fields
   const handleInputChange = (
     pax_id: number,
     field: keyof ParticipantGrade,
@@ -60,12 +61,31 @@ const GradingTable: React.FC<GradingTableProps> = ({ participants }) => {
     );
   };
 
-  // Auto-save function triggered when an input field loses focus (onBlur)
-  const handleSave = async (pax_id: number) => {
+  // When the "Edit" button is clicked
+  const handleEditClick = (participantGrade: ParticipantGrade) => {
+    setEditingRowId(participantGrade.pax_id);
+    setOriginalRowData(participantGrade); // Backup the current data
+  };
+
+  // When the "Cancel" button is clicked
+  const handleCancelClick = () => {
+    // Restore the grades from the backup
+    if (originalRowData) {
+      setGrades((currentGrades) =>
+        currentGrades.map((g) =>
+          g.pax_id === originalRowData.pax_id ? originalRowData : g
+        )
+      );
+    }
+    setEditingRowId(null); // Exit edit mode
+    setOriginalRowData(null);
+  };
+
+  // When the "Save" button is clicked
+  const handleSaveClick = async (pax_id: number) => {
     const participantGrade = grades.find((g) => g.pax_id === pax_id);
     if (!participantGrade) return;
 
-    // Calculate the final remark to save
     let finalRemark = participantGrade.remarks;
     if (finalRemark === "auto") {
       const avg =
@@ -74,8 +94,7 @@ const GradingTable: React.FC<GradingTableProps> = ({ participants }) => {
       finalRemark = avg >= passingAverage ? "passed" : "failed";
     }
 
-    // Set status to 'saving' to show a spinner
-    setSavingStatus((prev) => ({ ...prev, [pax_id]: "saving" }));
+    setIsSaving(true);
 
     try {
       await fetchWithAuth(`http://localhost:5000/api/grades/${pax_id}/grades`, {
@@ -88,17 +107,15 @@ const GradingTable: React.FC<GradingTableProps> = ({ participants }) => {
         }),
       });
 
-      // Set status to 'saved' to show a checkmark
-      setSavingStatus((prev) => ({ ...prev, [pax_id]: "saved" }));
+      setEditingRowId(null); // Exit edit mode on success
+      setOriginalRowData(null);
     } catch (err) {
-      // Set status to 'error' to show an error icon
-      setSavingStatus((prev) => ({ ...prev, [pax_id]: "error" }));
       console.error("Failed to save grades for pax_id:", pax_id, err);
+      // Here you can call your error modal if you want
+      // setModalErrorMessage("Failed to save. Please try again.");
+      // setShowErrorModal(true);
     } finally {
-      // After 2 seconds, reset the status icon to idle
-      setTimeout(() => {
-        setSavingStatus((prev) => ({ ...prev, [pax_id]: "idle" }));
-      }, 2000);
+      setIsSaving(false);
     }
   };
 
@@ -107,7 +124,6 @@ const GradingTable: React.FC<GradingTableProps> = ({ participants }) => {
       <div className="card-body">
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h5 className="card-title mb-0">Participant Grades</h5>
-
           <div className="d-flex align-items-center">
             <label htmlFor="passingAverage" className="form-label me-2 mb-0">
               Passing Average:
@@ -128,28 +144,27 @@ const GradingTable: React.FC<GradingTableProps> = ({ participants }) => {
             <thead className="table-light">
               <tr>
                 <th>Participant Name</th>
-                <th style={{ width: "120px" }}>Knowledge</th>
-                <th style={{ width: "120px" }}>Skills</th>
-                <th style={{ width: "120px" }}>Average</th>
-                <th style={{ width: "150px" }}>Status (Auto)</th>
-                <th style={{ width: "180px" }}>Final Status</th>
-                <th style={{ width: "50px" }}></th>
+                <th>Knowledge</th>
+                <th>Skills</th>
+                <th>Average</th>
+                <th>Status (Auto)</th>
+                <th>Final Status</th>
+                <th className="text-end">Actions</th>
               </tr>
             </thead>
             <tbody>
               {grades.map((g) => {
+                const isEditing = editingRowId === g.pax_id;
                 const average =
                   g.knowledge !== null && g.skills !== null
                     ? ((Number(g.knowledge) + Number(g.skills)) / 2).toFixed(1)
                     : "N/A";
-
                 const automaticStatus =
                   average !== "N/A"
                     ? Number(average) >= passingAverage
                       ? "Passed"
                       : "Failed"
                     : "Pending";
-
                 const statusColor =
                   automaticStatus === "Passed"
                     ? "bg-success"
@@ -160,35 +175,48 @@ const GradingTable: React.FC<GradingTableProps> = ({ participants }) => {
                 return (
                   <tr key={g.pax_id}>
                     <td>{g.pax_name}</td>
+                    {/* === 3. UPDATED JSX with conditional rendering === */}
                     <td>
-                      <input
-                        type="number"
-                        className="form-control"
-                        value={g.knowledge || ""}
-                        onChange={(e) =>
-                          handleInputChange(
-                            g.pax_id,
-                            "knowledge",
-                            e.target.value === "" ? "" : Number(e.target.value)
-                          )
-                        }
-                        onBlur={() => handleSave(g.pax_id)}
-                      />
+                      {isEditing ? (
+                        <input
+                          type="number"
+                          className="form-control"
+                          style={{ width: "100px" }}
+                          value={g.knowledge || ""}
+                          onChange={(e) =>
+                            handleInputChange(
+                              g.pax_id,
+                              "knowledge",
+                              e.target.value === ""
+                                ? "" // Change null to an empty string for input fields
+                                : Number(e.target.value)
+                            )
+                          }
+                        />
+                      ) : (
+                        g.knowledge
+                      )}
                     </td>
                     <td>
-                      <input
-                        type="number"
-                        className="form-control"
-                        value={g.skills || ""}
-                        onChange={(e) =>
-                          handleInputChange(
-                            g.pax_id,
-                            "skills",
-                            e.target.value === "" ? "" : Number(e.target.value)
-                          )
-                        }
-                        onBlur={() => handleSave(g.pax_id)}
-                      />
+                      {isEditing ? (
+                        <input
+                          type="number"
+                          className="form-control"
+                          style={{ width: "100px" }}
+                          value={g.skills || ""}
+                          onChange={(e) =>
+                            handleInputChange(
+                              g.pax_id,
+                              "skills",
+                              e.target.value === ""
+                                ? "" // Change null to an empty string for input fields
+                                : Number(e.target.value)
+                            )
+                          }
+                        />
+                      ) : (
+                        g.skills
+                      )}
                     </td>
                     <td>
                       <strong>{average}</strong>
@@ -199,35 +227,54 @@ const GradingTable: React.FC<GradingTableProps> = ({ participants }) => {
                       </span>
                     </td>
                     <td>
-                      <select
-                        className="form-select"
-                        value={g.remarks}
-                        onChange={(e) =>
-                          handleInputChange(g.pax_id, "remarks", e.target.value)
-                        }
-                        onBlur={() => handleSave(g.pax_id)}
-                      >
-                        <option value="auto">Auto</option>
-                        <option value="passed">Pass (Override)</option>
-                        <option value="failed">Fail (Override)</option>
-                        <option value="drop">Drop</option>
-                      </select>
-                    </td>
-                    <td>
-                      {savingStatus[g.pax_id] === "saving" && (
-                        <div
-                          className="spinner-border spinner-border-sm"
-                          role="status"
+                      {isEditing ? (
+                        <select
+                          className="form-select"
+                          style={{ width: "170px" }}
+                          value={g.remarks}
+                          onChange={(e) =>
+                            handleInputChange(
+                              g.pax_id,
+                              "remarks",
+                              e.target.value
+                            )
+                          }
                         >
-                          <span className="visually-hidden">Loading...</span>
-                        </div>
+                          <option value="auto">Auto</option>
+                          <option value="passed">Pass (Override)</option>
+                          <option value="failed">Fail (Override)</option>
+                          <option value="drop">Drop</option>
+                        </select>
+                      ) : (
+                        g.remarks.charAt(0).toUpperCase() + g.remarks.slice(1) // Capitalize first letter
                       )}
-                      {savingStatus[g.pax_id] === "saved" && (
-                        <span className="text-success">✔</span>
-                      )}
-                      {savingStatus[g.pax_id] === "error" && (
-                        <span className="text-danger">✖</span>
-                      )}
+                    </td>
+                    <td className="text-end">
+                      {!isReadOnly &&
+                        (isEditing ? (
+                          <div className="d-flex gap-2 justify-content-end">
+                            <button
+                              className="btn btn-sm btn-outline-secondary"
+                              onClick={handleCancelClick}
+                            >
+                              Cancel
+                            </button>
+                            <button
+                              className="btn btn-sm btn-primary"
+                              onClick={() => handleSaveClick(g.pax_id)}
+                              disabled={isSaving}
+                            >
+                              {isSaving ? "Saving..." : "Save"}
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            className="btn btn-sm btn-outline-primary"
+                            onClick={() => handleEditClick(g)}
+                          >
+                            Edit
+                          </button>
+                        ))}
                     </td>
                   </tr>
                 );
