@@ -129,7 +129,7 @@ function InstructorHome() {
       {/* === STAT CARDS === */}
       <div className="row mb-4">
         <div className="col-md-4">
-          <div className="card text-center h-100">
+          <div className="card text-center h-100 dashboard-card">
             <div className="card-body">
               <h5 className="card-title">Total Classes Taught</h5>
               <p className="card-text fs-1 fw-bold">
@@ -139,7 +139,7 @@ function InstructorHome() {
           </div>
         </div>
         <div className="col-md-4">
-          <div className="card text-center h-100">
+          <div className="card text-center h-100 dashboard-card">
             <div className="card-body">
               <h5 className="card-title">Active Classes</h5>
               <p className="card-text fs-1 fw-bold">
@@ -149,7 +149,7 @@ function InstructorHome() {
           </div>
         </div>
         <div className="col-md-4">
-          <div className="card text-center h-100">
+          <div className="card text-center h-100 dashboard-card">
             <div className="card-body">
               <h5 className="card-title">Total Participants Trained</h5>
               <p className="card-text fs-1 fw-bold">
@@ -163,7 +163,7 @@ function InstructorHome() {
       {/* === CHARTS === */}
       <div className="row mb-4">
         <div className="col-md-8">
-          <div className="card h-100">
+          <div className="card h-100 dashboard-card">
             <div className="card-body d-flex flex-column">
               {" "}
               {/* Added flex classes for centering */}
@@ -188,7 +188,7 @@ function InstructorHome() {
           </div>
         </div>
         <div className="col-md-4">
-          <div className="card h-100">
+          <div className="card h-100 dashboard-card">
             <div className="card-body d-flex flex-column">
               {" "}
               {/* Added flex classes for centering */}

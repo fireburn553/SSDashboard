@@ -19,3 +19,25 @@
 .fixed-top, .fixed-bottom {
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
+
+/* Card for the dashboard with hover effect */
+.dashboard-card {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* Styling for the link in the card footer */
+.dashboard-card .card-footer a {
+  text-decoration: none;
+  color: #6c757d; /* A muted gray color */
+  font-weight: 500;
+  transition: color 0.2s ease-in-out;
+}
+
+.dashboard-card .card-footer a:hover {
+  color: #0d6efd; /* Bootstrap primary blue on hover */
+}
