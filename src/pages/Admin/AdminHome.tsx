@@ -36,6 +36,8 @@ interface AdminSummary {
     total_classes: string;
     total_instructors: string;
     total_participants: string;
+    male_participants: string;
+    female_participants: string;
   };
   outcomes: { pax_remarks: string; count: string }[];
   courseDistribution: {
@@ -142,7 +144,7 @@ function AdminHome() {
       <p>A high-level overview of all organizational activity.</p>
       <div className="row mb-4">
         <div className="col-md-4">
-          <div className="card text-center h-100">
+          <div className="card text-center h-100 dashboard-card">
             <div className="card-body">
               <h5 className="card-title">Total Instructors</h5>
               <p className="card-text fs-1 fw-bold">
@@ -151,11 +153,9 @@ function AdminHome() {
               <ul className="list-group list-group-flush list-group-horizontal mt-2">
                 <li className="list-group-item flex-fill">
                   Pending
-                  <Link to="/admin/manage-instructors" className="stat-link">
-                    <span className="badge bg-warning rounded-pill ms-1">
-                      {summary.stats?.pending_instructors || 0}
-                    </span>
-                  </Link>
+                  <span className="badge bg-warning rounded-pill ms-1">
+                    {summary.stats?.pending_instructors || 0}
+                  </span>
                 </li>
                 <li className="list-group-item flex-fill">
                   Approved
@@ -171,10 +171,15 @@ function AdminHome() {
                 </li>
               </ul>
             </div>
+            <div className="card-footer bg-white border-0">
+              <Link to="/admin/manage-instructors">
+                View Details <i className="bi bi-arrow-right-circle ms-1"></i>
+              </Link>
+            </div>
           </div>
         </div>
         <div className="col-md-4">
-          <div className="card text-center h-100">
+          <div className="card text-center h-100 dashboard-card">
             <div className="card-body">
               <h5 className="card-title">Total Classes Conducted</h5>
               <p className="card-text fs-1 fw-bold">
@@ -197,22 +202,47 @@ function AdminHome() {
                 </li>
               </ul>
             </div>
+            <div className="card-footer bg-white border-0">
+              <Link to="/admin/manage-classes">
+                View Details <i className="bi bi-arrow-right-circle ms-1"></i>
+              </Link>
+            </div>
           </div>
         </div>
         <div className="col-md-4">
-          <div className="card text-center h-100">
+          <div className="card text-center h-100 dashboard-card">
             <div className="card-body">
               <h5 className="card-title">Total Participants Trained</h5>
               <p className="card-text fs-1 fw-bold">
                 {summary.stats?.total_participants || 0}
               </p>
+              {/* Gender Breakdown */}
+              <ul className="list-group list-group-flush list-group-horizontal mt-2">
+                <li className="list-group-item flex-fill">
+                  Male <br />
+                  <span className="badge bg-primary rounded-pill ms-1">
+                    {summary.stats?.male_participants || 0}
+                  </span>
+                </li>
+                <li className="list-group-item flex-fill">
+                  Female <br />
+                  <span className="badge bg-danger rounded-pill ms-1">
+                    {summary.stats?.female_participants || 0}
+                  </span>
+                </li>
+              </ul>
+            </div>
+            <div className="card-footer bg-white border-0">
+              <Link to="/admin/participants">
+                View Details <i className="bi bi-arrow-right-circle ms-1"></i>
+              </Link>
             </div>
           </div>
         </div>
       </div>
-      <div className="row">
-        <div className="col-md-8">
-          <div className="card">
+      <div className="row ">
+        <div className="col-md-8 ">
+          <div className="card dashboard-card">
             <div className="card-body">
               <h5 className="card-title">
                 Top 5 Instructors (by Classes Taught)
@@ -225,7 +255,7 @@ function AdminHome() {
           </div>
         </div>
         <div className="col-md-4">
-          <div className="card">
+          <div className="card dashboard-card">
             <div className="card-body">
               <h5 className="card-title">Overall Participant Outcomes</h5>
               <Pie data={outcomesData} options={{ responsive: true }} />
@@ -233,8 +263,8 @@ function AdminHome() {
           </div>
         </div>
       </div>
-      <div className="card mt-4">
-        <div className="card-body">
+      <div className="card mt-4 dashboard-card">
+        <div className="card-body ">
           <h5 className="card-title">Course Performance</h5>
           <Bar
             data={courseData}

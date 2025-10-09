@@ -32,7 +32,7 @@ function Signin() {
       const userRole = data.user.role;
       // ✅ Redirect to protected route
       if (userRole === "Admin") {
-        navigate("/admin/approvals"); // Or your main admin dashboard route
+        navigate("/admin"); // Or your main admin dashboard route
       } else if (userRole === "Instructor") {
         navigate("/instructor");
       } else {

@@ -15,6 +15,8 @@ import ManageInstructors from "./pages/Admin/ManageInstructors";
 import CreateClass from "./pages/Instructor/CreateClass";
 import ManageClass from "./pages/Instructor/ManageClass";
 import AdminHome from "./pages/Admin/AdminHome";
+import ManageAllClasses from "./pages/Admin/ManageAllClass";
+import AllParticipants from "./pages/Admin/AllParticipants";
 
 // 2. Create a component to handle the home page redirect logic
 const HomeRedirect = () => {
@@ -46,7 +48,7 @@ function App() {
         {/* 4. The updated Header gets its own state, so no prop is needed */}
         <Header />
       </header>
-      <main className="main-content bg-light">
+      <main className="main-content ">
         <Routes>
           {/* 5. Replace the old Home route with our new redirect component */}
           <Route path="/" element={<HomeRedirect />} />
@@ -89,7 +91,7 @@ function App() {
           <Route
             path="/instructor/class/:classId"
             element={
-              <ProtectedRoute roles={["Instructor"]}>
+              <ProtectedRoute roles={["Instructor", "Admin"]}>
                 <ManageClass />
               </ProtectedRoute>
             }
@@ -107,6 +109,22 @@ function App() {
             element={
               <ProtectedRoute roles={["Admin"]}>
                 <ManageInstructors />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/manage-classes"
+            element={
+              <ProtectedRoute roles={["Admin"]}>
+                <ManageAllClasses />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin/participants"
+            element={
+              <ProtectedRoute roles={["Admin"]}>
+                <AllParticipants />
               </ProtectedRoute>
             }
           />

@@ -4,7 +4,7 @@ import { useAuth } from "../auth/AuthContext";
 function Header() {
   // Get everything we need from the AuthContext
   const { isLoggedIn, user, logout } = useAuth();
-
+  console.log("Current User Object", user);
   return (
     <header className="navbar navbar-expand-lg bg-secondary p-3">
       <div className="container-fluid">

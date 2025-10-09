@@ -282,7 +282,10 @@ SELECT
     (SELECT COUNT(*) FROM class WHERE is_concluded = FALSE) AS active_classes,
 
     -- Participant Count
-    (SELECT COUNT(*) FROM participant) AS total_participants;`
+    (SELECT COUNT(*) FROM participant) AS total_participants,
+    (SELECT COUNT(*) FROM participant WHERE gender_id = 1) AS male_participants,
+    (SELECT COUNT(*) FROM participant WHERE gender_id = 2) AS female_participants
+;`
         ),
         // Query 2: Get overall pass/fail distribution
         pool.query(
@@ -332,5 +335,87 @@ ORDER BY
     next(err);
   }
 });
+router.get("/all-classes", async (req, res, next) => {
+  try {
+    const result = await pool.query(`
+      SELECT
+        c.class_id,
+        c.class_number,
+        co.course_name,
+        c.class_start_date,
+        c.class_end_date,
+        CONCAT(u.user_fname, ' ', u.user_lname) AS instructor_name,
+        c.is_concluded,
+        (SELECT COUNT(*) FROM participant p WHERE p.class_id = c.class_id) AS participant_count
+      FROM class c
+      JOIN course co ON c.course_id = co.course_id
+      JOIN users u ON c.user_id = u.user_id
+      ORDER BY c.class_start_date DESC
+    `);
+    res.json(result.rows);
+  } catch (err) {
+    next(err);
+  }
+});
+router.get("/all-participants", async (req, res, next) => {
+  try {
+    // Run all queries simultaneously for maximum efficiency
+    const [participantsResult, ageResult, csoResult, heaResult] =
+      await Promise.all([
+        // Query 1: Get the full list of participants
+        pool.query(`
+        SELECT
+            p.pax_id, p.pax_fname, p.pax_lname, p.pax_email, p.pax_bday,
+            g.gender_name, c.class_number, co.course_name, p.pax_remarks
+        FROM participant p
+        LEFT JOIN gender g ON p.gender_id = g.gender_id
+        LEFT JOIN class c ON p.class_id = c.class_id
+        LEFT JOIN course co ON c.course_id = co.course_id
+        ORDER BY p.created_at DESC
+      `),
+        // Query 2: Get Age Group distribution
+        pool.query(`
+        SELECT
+            CASE
+            WHEN EXTRACT(YEAR FROM AGE(pax_bday)) < 6 THEN '0-5 years old'
+                WHEN EXTRACT(YEAR FROM AGE(pax_bday)) BETWEEN 6 AND 10 THEN '6-10 years old'
+                WHEN EXTRACT(YEAR FROM AGE(pax_bday)) BETWEEN 11 AND 18 THEN '11-18 years old'
+                WHEN EXTRACT(YEAR FROM AGE(pax_bday)) BETWEEN 19 AND 30 THEN '19-30 years old'
+                WHEN EXTRACT(YEAR FROM AGE(pax_bday)) BETWEEN 31 AND 50 THEN '31-50 years old'
+                WHEN EXTRACT(YEAR FROM AGE(pax_bday)) > 50 THEN '51+ years old'
+                ELSE 'Unknown'
+            END AS age_group,
+            COUNT(*)
+        FROM participant
+        GROUP BY age_group ORDER BY age_group
+      `),
+        // Query 3: Get top 5 CSOs by participant count
+        pool.query(`
+        SELECT cs.cso_name, COUNT(p.pax_id) AS participant_count
+        FROM participant p
+        JOIN cso cs ON p.cso_id = cs.cso_id
+        GROUP BY cs.cso_name ORDER BY participant_count DESC LIMIT 5
+      `),
+        // Query 4: Get participant count by Highest Educational Attainment
+        pool.query(`
+        SELECT h.hea_name, COUNT(p.pax_id) AS participant_count
+        FROM participant p
+        JOIN highest_education_attainment h ON p.hea_id = h.hea_id
+        GROUP BY h.hea_name ORDER BY participant_count DESC
+      `),
+      ]);
 
+    // Combine results into a single, structured object
+    res.json({
+      participants: participantsResult.rows,
+      summary: {
+        ageDistribution: ageResult.rows,
+        csoDistribution: csoResult.rows,
+        heaDistribution: heaResult.rows,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+});
 module.exports = router;

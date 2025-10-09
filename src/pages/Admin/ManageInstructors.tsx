@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../../auth/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 // --- CHANGE 1: Update the Instructor interface ---
 // 'Suspended' is not a state we manage here according to the new logic.
@@ -17,7 +18,7 @@ const ManageInstructors = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const { fetchWithAuth } = useAuth();
-
+  const navigate = useNavigate();
   const fetchInstructors = useCallback(async () => {
     setIsLoading(true);
     setError("");
@@ -71,6 +72,12 @@ const ManageInstructors = () => {
 
   return (
     <div className="container mt-5">
+      <button
+        onClick={() => navigate(-1)}
+        className="btn btn-outline-secondary mb-4"
+      >
+        &larr; Back to Dashboard
+      </button>
       <h2>Manage Instructors</h2>
       <p>View all registered instructors and manage their account status.</p>
 

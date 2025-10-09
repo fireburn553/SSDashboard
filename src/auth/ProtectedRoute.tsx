@@ -28,7 +28,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, roles }) => {
   }
 
   // If roles are specified, check if the user has one of the allowed roles
-  if (roles && user && !roles.includes(user.role)) {
+  if (roles && user && !roles.includes(user.role.trim())) {
     // Redirect to a home page or an unauthorized page if role doesn't match
     return <Navigate to="/" />;
   }
