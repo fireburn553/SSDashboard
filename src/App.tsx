@@ -1,13 +1,14 @@
+import { BrowserRouter as Routes, Route } from "react-router-dom";
 import "./App.css";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
-import Signin from "./auth/Signin";
+import Signin from "./auth/Signin"; // ensure file is src/auth/Signin.tsx and default export exists
 import SignUp from "./auth/SignUp";
 import InstructorHome from "./pages/Instructor/InstructorHome";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "./auth/ProtectedRoute";
-import { Routes, Route, Navigate } from "react-router-dom"; // 1. Import Navigate
+import { Navigate } from "react-router-dom";
 import { useAuth } from "./auth/AuthContext";
 import ParticipantRegistration from "./pages/Instructor/ParticipantRegistration";
 import InstructorApproval from "./pages/Admin/InstructorApproval";

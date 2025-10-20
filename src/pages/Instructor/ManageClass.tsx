@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
 import { QRCodeCanvas } from "qrcode.react";
@@ -29,8 +29,8 @@ interface ClassDetails {
   class_start_date: string;
   class_end_date: string;
   main_instructor_name: string;
-  co_instructors: any[];
-  participants: any[];
+  co_instructors: CoInstructor[]; // use typed co-instructors
+  participants: Participant[]; // use typed participants
   invitation_token?: string;
   invitation_is_active?: boolean;
 }
