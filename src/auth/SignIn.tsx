@@ -9,6 +9,7 @@ function SignIn() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const auth = useAuth();
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
