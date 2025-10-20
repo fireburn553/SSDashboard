@@ -17,11 +17,10 @@ function SignIn() {
     setError("");
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/login`, {
+        const response = await fetch(`${API_BASE_URL}/api/auth/signin`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: username, password }), // matches backend
-        credentials: "include", // important to receive the cookie
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
@@ -29,22 +28,14 @@ function SignIn() {
         throw new Error(data.message || "Login failed.");
       }
 
-      // ✅ Call login() from AuthContext to update state and localStorage
-      login(data.user); // Pass the user data received from the backend
-      const userRole = data.user.role;
-      // ✅ Redirect to protected route
-      if (userRole === "Admin") {
-        navigate("/admin"); // Or your main admin dashboard route
-      } else if (userRole === "Instructor") {
-        navigate("/instructor");
+      if (data.token) {
+        auth.login(data.token);
       } else {
-        // Fallback for any other roles or unexpected cases
-        navigate("/");
+        throw new Error("No token received, authorization denied");
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
-      setError(err.message);
-      console.error(err);
+
+    } catch (error: any) {
+      setError(error.message);
     }
   };
 
