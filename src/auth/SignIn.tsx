@@ -10,32 +10,46 @@ const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const auth = useAuth();
   
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError("");
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setError("");
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/auth/signin`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
+  console.log("🔹 handleSubmit triggered");
+  console.log("📧 Email:", email);
+  console.log("🔑 Password:", password ? "[HIDDEN]" : "[EMPTY]");
 
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.message || "Login failed.");
-      }
+  try {
+    console.log("🌍 Sending request to:", `${API_BASE_URL}/api/auth/signin`);
 
-      if (data.token) {
-        auth.login(data.token);
-      } else {
-        throw new Error("No token received, authorization denied");
-      }
+    const response = await fetch(`${API_BASE_URL}/api/auth/signin`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
 
-    } catch (error: any) {
-      setError(error.message);
+    console.log("📩 Raw response:", response);
+
+    const data = await response.json();
+    console.log("✅ Parsed response data:", data);
+
+    if (!response.ok) {
+      console.error("❌ Server responded with an error:", data.message);
+      throw new Error(data.message || "Login failed.");
     }
-  };
+
+    if (data.token) {
+      console.log("🔐 Token received, logging in...");
+      auth.login(data.token);
+    } else {
+      console.error("⚠️ No token received from server.");
+      throw new Error("No token received, authorization denied");
+    }
+
+  } catch (error: any) {
+    console.error("🔥 Error during login:", error);
+    setError(error.message);
+  }
+};
 
   return (
     <div
