@@ -2,7 +2,7 @@ import "./App.css";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
 import Home from "./pages/Home";
-import SignIn from "./auth/Signin";
+import SignIn from "./auth/SignIn";
 import SignUp from "./auth/SignUp";
 import InstructorHome from "./pages/Instructor/InstructorHome";
 import NotFound from "./pages/NotFound";
