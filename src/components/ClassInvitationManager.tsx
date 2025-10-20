@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useState, useEffect } from "react";
 import { QRCodeSVG } from "qrcode.react"; // Ensure qrcode.react is installed: npm install qrcode.react @types/qrcode.react
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 // Define the props interface for this component
 interface ClassInvitationManagerProps {
   classId: number;
@@ -23,7 +23,7 @@ const ClassInvitationManager: React.FC<ClassInvitationManagerProps> = ({
       try {
         // This is a conceptual endpoint you might need to create
         const response = await fetch(
-          `http://localhost:5000/api/instructor/class/${classId}/invite-status`,
+          `${API_BASE_URL}/api/instructor/class/${classId}/invite-status`,
           { credentials: "include" }
         );
         if (response.ok) {
@@ -44,7 +44,7 @@ const ClassInvitationManager: React.FC<ClassInvitationManagerProps> = ({
     setError("");
     try {
       const response = await fetch(
-        `http://localhost:5000/api/instructor/class/${classId}/invite-link`,
+        `${API_BASE_URL}/api/instructor/class/${classId}/invite-link`,
         {
           method: "POST",
           credentials: "include",
@@ -65,7 +65,7 @@ const ClassInvitationManager: React.FC<ClassInvitationManagerProps> = ({
     setError("");
     try {
       const response = await fetch(
-        `http://localhost:5000/api/instructor/class/${classId}/invite-status`,
+        `${API_BASE_URL}/api/instructor/class/${classId}/invite-status`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

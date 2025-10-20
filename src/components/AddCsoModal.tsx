@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 import { useAuth } from "../auth/AuthContext";
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 interface AddCsoModalProps {
   show: boolean;
   onClose: () => void;
@@ -35,7 +35,7 @@ const AddCsoModal: React.FC<AddCsoModalProps> = ({
 
     try {
       const response = await fetchWithAuth(
-        "http://localhost:5000/api/instructor/csos",
+        `${API_BASE_URL}/api/instructor/csos`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { useAuth } from "../auth/AuthContext";
 import { useLocationSelector } from "../hooks/useLocationSelector";
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 interface AddLocationModalProps {
   show: boolean;
   onClose: () => void;
@@ -70,7 +70,7 @@ const AddLocationModal: React.FC<AddLocationModalProps> = ({
 
     try {
       const response = await fetchWithAuth(
-        "http://localhost:5000/api/instructor/locations",
+        `${API_BASE_URL}/api/instructor/locations`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

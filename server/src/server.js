@@ -28,9 +28,20 @@ const limiter = rateLimit({
 
 app.use(limiter);
 // Allow cookies across origins
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://ss-dashboard-two.vercel.app",
+];
+
 app.use(
   cors({
-    origin: "http://localhost:5173", // <-- no trailing slash
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
   })
 );

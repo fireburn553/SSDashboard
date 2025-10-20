@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../../auth/AuthContext";
 import { useNavigate } from "react-router-dom";
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 // --- CHANGE 1: Update the Instructor interface ---
 // 'Suspended' is not a state we manage here according to the new logic.
 interface Instructor {
@@ -24,7 +24,7 @@ const ManageInstructors = () => {
     setError("");
     try {
       const response = await fetchWithAuth(
-        "http://localhost:5000/api/admin/instructors"
+        `${API_BASE_URL}/api/admin/instructors`
       );
       if (!response.ok) throw new Error("Failed to fetch instructors.");
       const data = await response.json();
@@ -48,7 +48,7 @@ const ManageInstructors = () => {
   ) => {
     try {
       const response = await fetchWithAuth(
-        `http://localhost:5000/api/admin/instructors/${userId}/status`,
+        `${API_BASE_URL}/api/admin/instructors/${userId}/status`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

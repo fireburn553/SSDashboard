@@ -13,7 +13,7 @@ import {
   BarElement,
   Title,
 } from "chart.js";
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 // Register the components you'll be using from Chart.js
 ChartJS.register(
   ArcElement,
@@ -56,10 +56,8 @@ function InstructorHome() {
       try {
         // Fetch both sets of data at the same time
         const [classesRes, summaryRes] = await Promise.all([
-          fetchWithAuth("http://localhost:5000/api/instructor/my-classes"),
-          fetchWithAuth(
-            "http://localhost:5000/api/instructor/dashboard-summary"
-          ),
+          fetchWithAuth(`${API_BASE_URL}/api/instructor/my-classes`),
+          fetchWithAuth(`${API_BASE_URL}/api/instructor/dashboard-summary`),
         ]);
         if (!classesRes.ok || !summaryRes.ok) {
           throw new Error("Failed to fetch dashboard data.");
