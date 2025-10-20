@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useAuth } from "./AuthContext";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -7,7 +8,7 @@ function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-
+  const auth = useAuth();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
