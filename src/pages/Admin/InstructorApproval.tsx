@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
 import { useAuth } from "../../auth/AuthContext";
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 interface PendingInstructor {
   user_id: number;
   user_fname: string;
@@ -22,7 +22,7 @@ const InstructorApproval = () => {
     setError("");
     try {
       const response = await fetchWithAuth(
-        "http://localhost:5000/api/admin/instructors/pending"
+        `${API_BASE_URL}/api/admin/instructors/pending`
       );
       if (!response.ok) throw new Error("Failed to fetch pending instructors.");
 
@@ -47,7 +47,7 @@ const InstructorApproval = () => {
     try {
       // Your existing PUT endpoint is fine, we just need to send the correct status
       const response = await fetchWithAuth(
-        `http://localhost:5000/api/admin/instructors/${userId}/status`,
+        `${API_BASE_URL}/api/admin/instructors/${userId}/status`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

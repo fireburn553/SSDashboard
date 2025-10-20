@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLocationSelector } from "../hooks/useLocationSelector";
 import { useNavigate } from "react-router-dom";
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 interface Gender {
   id: number;
   label: string;
@@ -89,7 +89,7 @@ function SignUp() {
     // You can now send the 'payload' to your API.
     try {
       // IMPORTANT: Replace with your actual backend URL
-      const API_URL = "http://localhost:5000/api/register";
+      const API_URL = `${API_BASE_URL}/api/register`;
 
       const response = await fetch(API_URL, {
         method: "POST",

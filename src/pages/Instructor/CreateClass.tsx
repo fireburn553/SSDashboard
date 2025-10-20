@@ -4,7 +4,7 @@ import { useAuth } from "../../auth/AuthContext";
 import { useNavigate } from "react-router-dom";
 import AddLocationModal from "../../components/AddLocationModal";
 import AddCsoModal from "../../components/AddCsoModal";
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 // --- Interfaces for our data shapes ---
 interface DropdownOption {
   id: number;
@@ -63,12 +63,10 @@ const CreateClass = () => {
     try {
       const [coursesRes, locationsRes, csosRes, instructorsRes] =
         await Promise.all([
-          fetchWithAuth("http://localhost:5000/api/instructor/courses"),
-          fetchWithAuth("http://localhost:5000/api/instructor/locations"),
-          fetchWithAuth("http://localhost:5000/api/instructor/csos"),
-          fetchWithAuth(
-            "http://localhost:5000/api/instructor/approved-instructors"
-          ),
+          fetchWithAuth(`${API_BASE_URL}/api/instructor/courses`),
+          fetchWithAuth(`${API_BASE_URL}/api/instructor/locations`),
+          fetchWithAuth(`${API_BASE_URL}/api/instructor/csos`),
+          fetchWithAuth(`${API_BASE_URL}/api/instructor/approved-instructors`),
         ]);
 
       if (
@@ -200,7 +198,7 @@ const CreateClass = () => {
     setError("");
     try {
       const response = await fetchWithAuth(
-        "http://localhost:5000/api/instructor/class",
+        `${API_BASE_URL}/api/instructor/class`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

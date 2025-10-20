@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../auth/AuthContext"; // Adjust the path as needed
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 // Define the shape of a participant's grade data
 interface ParticipantGrade {
   pax_id: number;
@@ -97,7 +97,7 @@ const GradingTable: React.FC<GradingTableProps> = ({
     setIsSaving(true);
 
     try {
-      await fetchWithAuth(`http://localhost:5000/api/grades/${pax_id}/grades`, {
+      await fetchWithAuth(`${API_BASE_URL}/api/grades/${pax_id}/grades`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

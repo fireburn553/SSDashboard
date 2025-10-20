@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useLocationSelector } from "../../hooks/useLocationSelector";
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 interface Gender {
   id: number;
   label: string;
@@ -85,7 +85,7 @@ function ParticipantRegistration() {
       try {
         // First, check if the token is valid
         const validationRes = await fetch(
-          `http://localhost:5000/api/participant/invite/${inviteToken}`
+          `${API_BASE_URL}/api/participant/invite/${inviteToken}`
         );
         const validationData = await validationRes.json();
 
@@ -97,8 +97,8 @@ function ParticipantRegistration() {
 
         // If token is valid, fetch the dropdown options
         const [heaRes, csoRes] = await Promise.all([
-          fetch("http://localhost:5000/api/participant/hea"),
-          fetch("http://localhost:5000/api/participant/csos"),
+          fetch(`${API_BASE_URL}/api/participant/hea`),
+          fetch(`${API_BASE_URL}/api/participant/csos`),
         ]);
 
         const heaData = await heaRes.json();
@@ -153,7 +153,7 @@ function ParticipantRegistration() {
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/participant/register/invite/${inviteToken}`,
+        `${API_BASE_URL}/api/participant/register/invite/${inviteToken}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

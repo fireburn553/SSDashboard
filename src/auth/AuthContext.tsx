@@ -7,18 +7,16 @@ import React, {
   useRef,
 } from "react";
 
-// --- CHANGE 1: User Interface ---
-// This interface defines the shape of the user data we'll store.
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 interface User {
   user_id: number;
   user_fname: string;
   user_lname: string;
   role: string;
   user_email: string;
-  // Add any other fields you get from your API's login response
-}
+ }
 
-// --- CHANGE 2: Updated AuthContextType ---
+
 // Added the 'user' state to the context type.
 interface AuthContextType {
   isLoggedIn: boolean;
@@ -68,7 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   const logout = async () => {
     try {
       // It's good practice to have a logout endpoint to invalidate the cookie
-      await fetch("http://localhost:5000/api/logout", {
+      await fetch(`${API_BASE_URL}/api/logout`, {
         // Assuming this is your logout endpoint
         method: "POST",
         credentials: "include",
@@ -97,7 +95,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   // Assume '/check-auth' returns the user data if the session is valid
   const checkAuth = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/check-auth", {
+      const res = await fetch(`${API_BASE_URL}/api/check-auth`, {
         // Assuming this is your check-auth endpoint
         credentials: "include",
       });

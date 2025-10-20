@@ -2,7 +2,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "../../auth/AuthContext";
 import { useSortableData } from "../../hooks/useSortableData";
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 interface ParticipantSummary {
   ageDistribution: { age_group: string; count: string }[];
   csoDistribution: { cso_name: string; participant_count: string }[];
@@ -33,7 +33,7 @@ function AllParticipants() {
     const fetchParticipantData = async () => {
       try {
         const res = await fetchWithAuth(
-          "http://localhost:5000/api/admin/all-participants"
+          `${API_BASE_URL}/api/admin/all-participants`
         );
         if (!res.ok) {
           throw new Error("Failed to fetch participant data");
@@ -249,7 +249,7 @@ function AllParticipants() {
                     </td>
                     <td data-label="Actions" className="text-end">
                       <a
-                        href={`http://localhost:5000/api/certificates/participant/${p.pax_id}`}
+                        href={`${API_BASE_URL}/api/certificates/participant/${p.pax_id}`}
                         className={`btn btn-sm btn-outline-secondary ${
                           p.pax_remarks !== "passed" ? "disabled" : ""
                         }`}

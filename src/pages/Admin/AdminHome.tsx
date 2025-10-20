@@ -13,7 +13,7 @@ import {
   Title,
 } from "chart.js";
 import { Link } from "react-router-dom";
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 // Register Chart.js components
 ChartJS.register(
   ArcElement,
@@ -58,7 +58,7 @@ function AdminHome() {
     const fetchAdminSummary = async () => {
       try {
         const res = await fetchWithAuth(
-          "http://localhost:5000/api/admin/dashboard-summary"
+          `${API_BASE_URL}/api/admin/dashboard-summary`
         );
         if (!res.ok) throw new Error("Could not fetch admin summary data.");
         const data = await res.json();

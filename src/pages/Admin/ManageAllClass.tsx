@@ -3,6 +3,7 @@ import { useState, useEffect, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
 import { useSortableData } from "../../hooks/useSortableData";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 // Define the structure of a single class in the list
 interface AdminClass {
   class_id: number;
@@ -33,7 +34,7 @@ function ManageAllClasses() {
     const fetchAllClasses = async () => {
       try {
         const res = await fetchWithAuth(
-          "http://localhost:5000/api/admin/all-classes"
+          `${API_BASE_URL}/api/admin/all-classes`
         );
         if (!res.ok) throw new Error("Failed to fetch classes");
         const data = await res.json();
@@ -225,7 +226,7 @@ function ManageAllClasses() {
                               className={`dropdown-item ${
                                 !cls.is_concluded ? "disabled" : ""
                               }`}
-                              href={`http://localhost:5000/api/report/${cls.class_id}/report`}
+                              href={`${API_BASE_URL}/api/report/${cls.class_id}/report`}
                               target="_blank"
                               rel="noopener noreferrer"
                             >
@@ -237,7 +238,7 @@ function ManageAllClasses() {
                               className={`dropdown-item ${
                                 !cls.is_concluded ? "disabled" : ""
                               }`}
-                              href={`http://localhost:5000/api/certificates/class/${cls.class_id}`}
+                              href={`${API_BASE_URL}/api/certificates/class/${cls.class_id}`}
                               target="_blank"
                               rel="noopener noreferrer"
                             >

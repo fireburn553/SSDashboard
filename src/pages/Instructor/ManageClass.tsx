@@ -6,7 +6,7 @@ import { useAuth } from "../../auth/AuthContext";
 import { QRCodeCanvas } from "qrcode.react";
 import GradingTable from "../../components/GradingTable";
 import AddParticipantModal from "../../components/AddParticipantModal";
-
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 interface Participant {
   pax_id: number;
   pax_fname: string;
@@ -56,7 +56,7 @@ const ManageClass = () => {
     setIsLoading(true);
     try {
       const response = await fetchWithAuth(
-        `http://localhost:5000/api/instructor/class/${classId}`,
+        `${API_BASE_URL}/api/instructor/class/${classId}`,
         {
           // Add these headers to prevent caching
           headers: {
@@ -88,7 +88,7 @@ const ManageClass = () => {
   const handleToggleInviteLink = async (newStatus: boolean) => {
     try {
       const response = await fetchWithAuth(
-        `http://localhost:5000/api/instructor/class/${classId}/invite-status`,
+        `${API_BASE_URL}/api/instructor/class/${classId}/invite-status`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -109,14 +109,14 @@ const ManageClass = () => {
   };
   const handlePrintCertificates = () => {
     window.open(
-      `http://localhost:5000/api/certificates/class/${classId}`,
+      `${API_BASE_URL}/api/certificates/class/${classId}`,
       "_blank"
     );
   };
   const handleGenerateLink = async () => {
     try {
       const response = await fetchWithAuth(
-        `http://localhost:5000/api/instructor/class/${classId}/invite-link`,
+        `${API_BASE_URL}/api/instructor/class/${classId}/invite-link`,
         { method: "POST" }
       );
       const data = await response.json();
@@ -132,7 +132,7 @@ const ManageClass = () => {
     // This could open a new tab with the report, or trigger a download.
     // Replace with your actual report generation logic/endpoint.
     console.log("Generating report for class ID:", classId);
-    window.open(`http://localhost:5000/api/report/${classId}/report`, "_blank");
+    window.open(`${API_BASE_URL}/api/report/${classId}/report`, "_blank");
   };
   const downloadQRCode = () => {
     const canvas = qrCodeRef.current?.querySelector("canvas");
@@ -154,7 +154,7 @@ const ManageClass = () => {
   const handleConclude = async () => {
     try {
       const response = await fetchWithAuth(
-        `http://localhost:5000/api/instructor/class/${classId}/conclude`,
+        `${API_BASE_URL}/api/instructor/class/${classId}/conclude`,
         { method: "PUT" }
       );
       // Get the fresh data directly from the update response
@@ -182,7 +182,7 @@ const ManageClass = () => {
   const handleReactivate = async () => {
     try {
       const response = await fetchWithAuth(
-        `http://localhost:5000/api/instructor/class/${classId}/reactivate`,
+        `${API_BASE_URL}/api/instructor/class/${classId}/reactivate`,
         { method: "PUT" }
       );
       // Get the updated object from the response
