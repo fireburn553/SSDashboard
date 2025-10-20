@@ -56,7 +56,7 @@ app.use(cookieParser());
 setupSwagger(app);
 
 /* Public routes */
-app.use("/api", authRoutes); // login/register
+app.use("/api/auth", authRoutes); // login/register
 app.use("/api/participant", participantsRoutes);
 
 app.use(authMiddleware);
