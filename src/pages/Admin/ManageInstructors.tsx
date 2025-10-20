@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../../auth/AuthContext";
 import { useNavigate } from "react-router-dom";
 
@@ -143,15 +143,16 @@ const ManageInstructors = () => {
                   {instructor.status === "Pending" && (
                     <button
                       className="btn btn-success btn-sm"
-                      onClick={() => handleUpdateStatus(instructor.user_id, "Approved")}
+                      onClick={() =>
+                        handleUpdateStatus(instructor.user_id, "Approved")
+                      }
                     >
                       Approve
                     </button>
                   )}
 
                   {/* If status is 'Pending' or 'Rejected', show no action button */}
-                  {(
-                    instructor.status === "Rejected") && (
+                  {instructor.status === "Rejected" && (
                     <span className="text-muted fst-italic">
                       No action available
                     </span>
