@@ -50,11 +50,11 @@ const [email, setEmail] = useState("");
               Email
             </label>
             <input
-              id="username"
-              type="text"
+              id="email"
+              type="email"
               className="form-control"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
               autoFocus
             />
