@@ -10,12 +10,16 @@ router.post("/signin", async (req, res, next) => {
     const { email, password } = req.body;
     console.log(`[AUTH] Received signin request for: ${email}`);
 
-    const userResult = await pool.query("SELECT * FROM users WHERE user_email = $1", [email]);
+    const userResult = await pool.query(
+      "SELECT * FROM users WHERE user_email = $1",
+      [email]
+    );
 
     if (userResult.rows.length === 0) {
       console.error(`[AUTH] FAILED: User not found for email: ${email}`);
       return res.status(401).json({ message: "Invalid email or password." });
     }
+
     const user = userResult.rows[0];
     console.log(`[AUTH] SUCCESS: Found user ID ${user.user_id}`);
 
@@ -24,23 +28,35 @@ router.post("/signin", async (req, res, next) => {
       console.error(`[AUTH] FAILED: Password mismatch for user ID ${user.user_id}`);
       return res.status(401).json({ message: "Invalid email or password." });
     }
+
     console.log(`[AUTH] SUCCESS: Password verified for user ID ${user.user_id}`);
-    
-    // Fetch role for the payload
-    const roleResult = await pool.query("SELECT role_name FROM roles WHERE role_id = $1", [user.role_id]);
-    const userRole = roleResult.rows[0]?.role_name || 'User';
+
+    // ✅ Fetch role
+    const roleResult = await pool.query(
+      "SELECT role_name FROM roles WHERE role_id = $1",
+      [user.role_id]
+    );
+    const userRole = roleResult.rows[0]?.role_name || "User";
 
     const payload = { user: { id: user.user_id, fname: user.user_fname, role: userRole } };
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "24h" });
 
-    // Send token in the JSON body, not a cookie
-    res.json({ token, user: payload.user });
+    // ✅ Send token as secure, HTTP-only cookie
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // true on Render
+      sameSite: "lax",
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    });
 
+    // ✅ Also send token + user in JSON (optional, for immediate frontend use)
+    res.json({ success: true, user: payload.user });
   } catch (err) {
     console.error("[AUTH] FATAL ERROR during signin:", err);
     next(err);
   }
 });
+
 
 
 // This route verifies the token on page load
