@@ -6,80 +6,52 @@ const pool = require("../database");
 const authenticateToken = require("../middleware/auth"); // Assuming you have this middleware
 
 router.post("/signin", async (req, res, next) => {
-  console.log("--- [AUTH LOG] New Sign-In Attempt ---");
   try {
     const { email, password } = req.body;
-    console.log(`[AUTH LOG] 1. Received request for email: ${email}`);
-    
-    const userResult = await pool.query(
-      `SELECT u.user_id, u.user_email, u.user_password,
-              r.role_name AS role, u.user_fname,
-              s.account_status_name
-       FROM users u
-       JOIN role r ON u.role_id = r.role_id
-       JOIN account_status s ON u.account_status_id = s.account_status_id
-       WHERE u.user_email = $1`,
-      [email]
-    );
+    console.log(`[AUTH] Received signin request for: ${email}`);
+
+    const userResult = await pool.query("SELECT * FROM users WHERE user_email = $1", [email]);
 
     if (userResult.rows.length === 0) {
-      console.error(`[AUTH LOG] 2. FAILED: No user found for email: ${email}.`);
+      console.error(`[AUTH] FAILED: User not found for email: ${email}`);
       return res.status(401).json({ message: "Invalid email or password." });
     }
-
     const user = userResult.rows[0];
-    console.log(`[AUTH LOG] 2. SUCCESS: Found user with ID: ${user.user_id}`);
-    
-    const disallowedStatuses = ["Pending", "Suspended", "Rejected", "Disabled"];
-    if (disallowedStatuses.includes(user.account_status_name)) {
-      console.error(`[AUTH LOG] 3. FAILED: Account for user ${user.user_id} has a disallowed status: '${user.account_status_name}'`);
-      return res.status(403).json({ message: `Your account is currently ${user.account_status_name}. Please contact an administrator.` });
-    }
-    console.log(`[AUTH LOG] 3. SUCCESS: Account status is active ('${user.account_status_name}').`);
+    console.log(`[AUTH] SUCCESS: Found user ID ${user.user_id}`);
 
     const validPassword = await bcrypt.compare(password, user.user_password);
     if (!validPassword) {
-      console.error(`[AUTH LOG] 4. FAILED: Password validation failed for user: ${user.user_id}`);
+      console.error(`[AUTH] FAILED: Password mismatch for user ID ${user.user_id}`);
       return res.status(401).json({ message: "Invalid email or password." });
     }
-    console.log(`[AUTH LOG] 4. SUCCESS: Password validated for user: ${user.user_id}`);
-    // Create the user payload for the token
-    const payload = {
-      user: {
-        id: user.user_id,
-        fname: user.user_fname,
-        role: user.role,
-      },
-    };
+    console.log(`[AUTH] SUCCESS: Password verified for user ID ${user.user_id}`);
+    
+    // Fetch role for the payload
+    const roleResult = await pool.query("SELECT role_name FROM role WHERE role_id = $1", [user.role_id]);
+    const userRole = roleResult.rows[0]?.role_name || 'User';
 
-    // Create the token
+    const payload = { user: { id: user.user_id, fname: user.user_fname, role: userRole } };
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "24h" });
-    console.log(`[AUTH LOG] 5. SUCCESS: JWT token generated for user: ${user.user_id}`);
-    res.json({
-        token, // This is what the frontend needs
-        user: payload.user
-    });
+
+    // Send token in the JSON body, not a cookie
+    res.json({ token, user: payload.user });
 
   } catch (err) {
-    console.error("[AUTH LOG] 6. FATAL ERROR: An unexpected error occurred during the signin process.", err);
+    console.error("[AUTH] FATAL ERROR during signin:", err);
     next(err);
   }
 });
 
-// It uses the authenticateToken middleware which reads the Bearer Token.
+
+// This route verifies the token on page load
 router.get("/user-details", authenticateToken, async (req, res) => {
   try {
     const userId = req.user.user.id;
     const userResult = await pool.query(
-      `SELECT u.user_id, u.user_fname, r.role_name as role
-       FROM users u JOIN role r ON u.role_id = r.role_id
-       WHERE u.user_id = $1`,
+      `SELECT u.user_id, u.user_fname, r.role_name as role FROM users u JOIN role r ON u.role_id = r.role_id WHERE u.user_id = $1`,
       [userId]
     );
-
-    if (userResult.rows.length === 0) {
-      return res.status(404).json({ message: "User not found" });
-    }
+    if (userResult.rows.length === 0) return res.status(404).json({ message: "User not found" });
     res.json(userResult.rows[0]);
   } catch (err) {
     res.status(500).send("Server Error");
