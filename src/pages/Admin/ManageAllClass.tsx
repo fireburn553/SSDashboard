@@ -132,121 +132,126 @@ function ManageAllClasses() {
               </select>
             </div>
           </div>
-          <table className="table table-hover align-middle">
-            <thead>
-              <tr>
-                <th
-                  onClick={() => requestSort("class_number")}
-                  style={{ cursor: "pointer" }}
-                >
-                  Class Number{getSortIndicator("class_number")}
-                </th>
-                <th
-                  onClick={() => requestSort("course_name")}
-                  style={{ cursor: "pointer" }}
-                >
-                  Course Name{getSortIndicator("course_name")}
-                </th>
-                <th
-                  onClick={() => requestSort("class_start_date")}
-                  style={{ cursor: "pointer" }}
-                >
-                  Dates{getSortIndicator("class_start_date")}
-                </th>
-                <th
-                  onClick={() => requestSort("instructor_name")}
-                  style={{ cursor: "pointer" }}
-                >
-                  Instructor{getSortIndicator("instructor_name")}
-                </th>
-                <th
-                  onClick={() => requestSort("participant_count")}
-                  style={{ cursor: "pointer" }}
-                >
-                  Participants{getSortIndicator("participant_count")}
-                </th>
-                <th
-                  onClick={() => requestSort("is_concluded")}
-                  style={{ cursor: "pointer" }}
-                >
-                  Status{getSortIndicator("is_concluded")}
-                </th>
-                <th className="text-end">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedClasses.map((cls) => (
-                <tr key={cls.class_id}>
-                  <td>{cls.class_number}</td>
-                  <td>{cls.course_name}</td>
-                  <td>
-                    {formatDateRange(cls.class_start_date, cls.class_end_date)}
-                  </td>
-                  <td>{cls.instructor_name}</td>
-                  <td>{cls.participant_count}</td>
-                  <td>
-                    <span
-                      className={`badge ${
-                        cls.is_concluded ? "bg-secondary" : "bg-success"
-                      }`}
-                    >
-                      {cls.is_concluded ? "Concluded" : "Active"}
-                    </span>
-                  </td>
-                  <td className="text-end">
-                    {/* Bootstrap Dropdown for the Actions Menu */}
-                    <div className="dropdown">
-                      <button
-                        className="btn btn-sm btn-outline-secondary"
-                        type="button"
-                        data-bs-toggle="dropdown"
-                        aria-expanded="false"
-                      >
-                        <i className="bi bi-three-dots-vertical"></i>
-                      </button>
-                      <ul className="dropdown-menu dropdown-menu-end">
-                        <li>
-                          <Link
-                            className="dropdown-item"
-                            to={`/instructor/class/${cls.class_id}`}
-                          >
-                            Manage Class
-                          </Link>
-                        </li>
-                        <li>
-                          <hr className="dropdown-divider" />
-                        </li>
-                        <li>
-                          <a
-                            className={`dropdown-item ${
-                              !cls.is_concluded ? "disabled" : ""
-                            }`}
-                            href={`http://localhost:5000/api/report/${cls.class_id}/report`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            Generate Report
-                          </a>
-                        </li>
-                        <li>
-                          <a
-                            className={`dropdown-item ${
-                              !cls.is_concluded ? "disabled" : ""
-                            }`}
-                            href={`http://localhost:5000/api/certificates/class/${cls.class_id}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            Print Certificates
-                          </a>
-                        </li>
-                      </ul>
-                    </div>
-                  </td>
+          <div className="table-responsive-cards">
+            <table className="table table-hover align-middle">
+              <thead>
+                <tr>
+                  <th
+                    onClick={() => requestSort("class_number")}
+                    style={{ cursor: "pointer" }}
+                  >
+                    Class Number{getSortIndicator("class_number")}
+                  </th>
+                  <th
+                    onClick={() => requestSort("course_name")}
+                    style={{ cursor: "pointer" }}
+                  >
+                    Course Name{getSortIndicator("course_name")}
+                  </th>
+                  <th
+                    onClick={() => requestSort("class_start_date")}
+                    style={{ cursor: "pointer" }}
+                  >
+                    Dates{getSortIndicator("class_start_date")}
+                  </th>
+                  <th
+                    onClick={() => requestSort("instructor_name")}
+                    style={{ cursor: "pointer" }}
+                  >
+                    Instructor{getSortIndicator("instructor_name")}
+                  </th>
+                  <th
+                    onClick={() => requestSort("participant_count")}
+                    style={{ cursor: "pointer" }}
+                  >
+                    Participants{getSortIndicator("participant_count")}
+                  </th>
+                  <th
+                    onClick={() => requestSort("is_concluded")}
+                    style={{ cursor: "pointer" }}
+                  >
+                    Status{getSortIndicator("is_concluded")}
+                  </th>
+                  <th className="text-end">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {sortedClasses.map((cls) => (
+                  <tr key={cls.class_id}>
+                    <td data-label="Class Number">{cls.class_number}</td>
+                    <td data-label="Course Name">{cls.course_name}</td>
+                    <td data-label="Dates">
+                      {formatDateRange(
+                        cls.class_start_date,
+                        cls.class_end_date
+                      )}
+                    </td>
+                    <td data-label="Instructor">{cls.instructor_name}</td>
+                    <td data-label="Participants">{cls.participant_count}</td>
+                    <td data-label="Status">
+                      <span
+                        className={`badge ${
+                          cls.is_concluded ? "bg-secondary" : "bg-success"
+                        }`}
+                      >
+                        {cls.is_concluded ? "Concluded" : "Active"}
+                      </span>
+                    </td>
+                    <td data-label="Actions" className="text-end">
+                      {/* Bootstrap Dropdown for the Actions Menu */}
+                      <div className="dropdown">
+                        <button
+                          className="btn btn-sm btn-outline-secondary"
+                          type="button"
+                          data-bs-toggle="dropdown"
+                          aria-expanded="false"
+                        >
+                          <i className="bi bi-three-dots-vertical"></i>
+                        </button>
+                        <ul className="dropdown-menu dropdown-menu-end">
+                          <li>
+                            <Link
+                              className="dropdown-item"
+                              to={`/instructor/class/${cls.class_id}`}
+                            >
+                              Manage Class
+                            </Link>
+                          </li>
+                          <li>
+                            <hr className="dropdown-divider" />
+                          </li>
+                          <li>
+                            <a
+                              className={`dropdown-item ${
+                                !cls.is_concluded ? "disabled" : ""
+                              }`}
+                              href={`http://localhost:5000/api/report/${cls.class_id}/report`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              Generate Report
+                            </a>
+                          </li>
+                          <li>
+                            <a
+                              className={`dropdown-item ${
+                                !cls.is_concluded ? "disabled" : ""
+                              }`}
+                              href={`http://localhost:5000/api/certificates/class/${cls.class_id}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              Print Certificates
+                            </a>
+                          </li>
+                        </ul>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

@@ -139,7 +139,7 @@ const GradingTable: React.FC<GradingTableProps> = ({
           </div>
         </div>
 
-        <div className="table-responsive">
+        <div className="table-responsive-cards">
           <table className="table table-hover align-middle">
             <thead className="table-light">
               <tr>
@@ -174,9 +174,9 @@ const GradingTable: React.FC<GradingTableProps> = ({
 
                 return (
                   <tr key={g.pax_id}>
-                    <td>{g.pax_name}</td>
+                    <td data-label="Participant Name">{g.pax_name}</td>
                     {/* === 3. UPDATED JSX with conditional rendering === */}
-                    <td>
+                    <td data-label="Knowledge">
                       {isEditing ? (
                         <input
                           type="number"
@@ -197,7 +197,7 @@ const GradingTable: React.FC<GradingTableProps> = ({
                         g.knowledge
                       )}
                     </td>
-                    <td>
+                    <td data-label="Skills">
                       {isEditing ? (
                         <input
                           type="number"
@@ -218,10 +218,10 @@ const GradingTable: React.FC<GradingTableProps> = ({
                         g.skills
                       )}
                     </td>
-                    <td>
+                    <td data-label="Average">
                       <strong>{average}</strong>
                     </td>
-                    <td>
+                    <td data-label="Status (Auto)">
                       <span className={`badge ${statusColor}`}>
                         {automaticStatus}
                       </span>
@@ -249,7 +249,7 @@ const GradingTable: React.FC<GradingTableProps> = ({
                         g.remarks.charAt(0).toUpperCase() + g.remarks.slice(1) // Capitalize first letter
                       )}
                     </td>
-                    <td className="text-end">
+                    <td data-label="Actions" className="text-end">
                       {!isReadOnly &&
                         (isEditing ? (
                           <div className="d-flex gap-2 justify-content-end">

@@ -82,77 +82,86 @@ const ManageInstructors = () => {
       <p>View all registered instructors and manage their account status.</p>
 
       {error && <div className="alert alert-danger">{error}</div>}
-
-      <table className="table table-striped table-hover">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Email</th>
-            <th>Status</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {instructors.map((instructor) => (
-            <tr key={instructor.user_id}>
-              <td>
-                {instructor.user_fname} {instructor.user_lname}
-              </td>
-              <td>{instructor.user_email}</td>
-              <td>
-                <span
-                  className={`badge ${
-                    instructor.status === "Approved"
-                      ? "bg-success"
-                      : instructor.status === "Disabled"
-                      ? "bg-secondary"
-                      : instructor.status === "Rejected"
-                      ? "bg-danger"
-                      : "bg-info" // for Pending
-                  }`}
-                >
-                  {instructor.status}
-                </span>
-              </td>
-              <td>
-                {/* --- CHANGE 3: Implement the new action button logic --- */}
-
-                {/* If status is 'Approved', the only action is to 'Disable' */}
-                {instructor.status === "Approved" && (
-                  <button
-                    className="btn btn-danger btn-sm"
-                    onClick={() =>
-                      handleUpdateStatus(instructor.user_id, "Disabled")
-                    }
-                  >
-                    Disable
-                  </button>
-                )}
-
-                {/* If status is 'Disabled', the only action is to 'Approve' (reactivate) */}
-                {instructor.status === "Disabled" && (
-                  <button
-                    className="btn btn-success btn-sm"
-                    onClick={() =>
-                      handleUpdateStatus(instructor.user_id, "Approved")
-                    }
-                  >
-                    Reactivate
-                  </button>
-                )}
-
-                {/* If status is 'Pending' or 'Rejected', show no action button */}
-                {(instructor.status === "Pending" ||
-                  instructor.status === "Rejected") && (
-                  <span className="text-muted fst-italic">
-                    No action available
-                  </span>
-                )}
-              </td>
+      <div className="table-responsive-cards">
+        <table className="table table-striped table-hover">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Status</th>
+              <th>Actions</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {instructors.map((instructor) => (
+              <tr key={instructor.user_id}>
+                <td data-label="Name">
+                  {instructor.user_fname} {instructor.user_lname}
+                </td>
+                <td data-label="Email">{instructor.user_email}</td>
+                <td data-label="Status">
+                  <span
+                    className={`badge ${
+                      instructor.status === "Approved"
+                        ? "bg-success"
+                        : instructor.status === "Disabled"
+                        ? "bg-secondary"
+                        : instructor.status === "Rejected"
+                        ? "bg-danger"
+                        : "bg-info" // for Pending
+                    }`}
+                  >
+                    {instructor.status}
+                  </span>
+                </td>
+                <td data-label="Actions" className="text-end">
+                  {/* --- CHANGE 3: Implement the new action button logic --- */}
+
+                  {/* If status is 'Approved', the only action is to 'Disable' */}
+                  {instructor.status === "Approved" && (
+                    <button
+                      className="btn btn-danger btn-sm"
+                      onClick={() =>
+                        handleUpdateStatus(instructor.user_id, "Disabled")
+                      }
+                    >
+                      Disable
+                    </button>
+                  )}
+
+                  {/* If status is 'Disabled', the only action is to 'Approve' (reactivate) */}
+                  {instructor.status === "Disabled" && (
+                    <button
+                      className="btn btn-success btn-sm"
+                      onClick={() =>
+                        handleUpdateStatus(instructor.user_id, "Approved")
+                      }
+                    >
+                      Reactivate
+                    </button>
+                  )}
+                  {instructor.status === "Pending" && (
+                    <button
+                      className="btn btn-success btn-sm"
+                      onClick={() => handleUpdateStatus(instructor.user_id, "Approved")}
+                    >
+                      Approve
+                    </button>
+                  )}
+
+                  {/* If status is 'Pending' or 'Rejected', show no action button */}
+                  {(
+                    instructor.status === "Rejected") && (
+                    <span className="text-muted fst-italic">
+                      No action available
+                    </span>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
