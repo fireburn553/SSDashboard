@@ -29,22 +29,25 @@ const limiter = rateLimit({
 app.use(limiter);
 // Allow cookies across origins
 const allowedOrigins = [
-  "http://localhost:5173",
-  "https://ss-dashboard-two.vercel.app",
+  'http://localhost:5173',               
+  'https://ss-dashboard-two.vercel.app' 
 ];
 
 const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
     }
-    return callback(null, true);
-  }
+  },
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE", 
+  credentials: true, 
+  optionsSuccessStatus: 204 
 };
 
 app.use(cors(corsOptions));
+
 app.use(helmet());
 app.use(express.json());
 app.use(cookieParser());
