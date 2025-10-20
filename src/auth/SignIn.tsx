@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./AuthContext";
 
-function Signin() {
+function SignIn() {
   const [username, setUsername] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [password, setPassword] = useState("");
@@ -113,4 +113,4 @@ function Signin() {
   );
 }
 
-export default Signin;
+export default SignIn;
