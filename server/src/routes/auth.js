@@ -5,7 +5,6 @@ const jwt = require("jsonwebtoken");
 const pool = require("../database");
 const authenticateToken = require("../middleware/auth"); // Assuming you have this middleware
 
-
 router.post("/signin", async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -28,7 +27,7 @@ router.post("/signin", async (req, res, next) => {
     const user = userResult.rows[0];
     const disallowedStatuses = ["Pending", "Suspended", "Rejected", "Disabled"];
     if (disallowedStatuses.includes(user.account_status_name)) {
-        return res.status(403).json({ message: `Your account is currently ${user.account_status_name}. Please contact an administrator.` });
+      return res.status(403).json({ message: `Your account is currently ${user.account_status_name}. Please contact an administrator.` });
     }
 
     const validPassword = await bcrypt.compare(password, user.user_password);
@@ -36,6 +35,7 @@ router.post("/signin", async (req, res, next) => {
       return res.status(401).json({ message: "Invalid email or password." });
     }
 
+    // Create the user payload for the token
     const payload = {
       user: {
         id: user.user_id,
@@ -44,15 +44,12 @@ router.post("/signin", async (req, res, next) => {
       },
     };
 
+    // Create the token
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "24h" });
-    
+
     res.json({
-        token,
-        user: {
-            user_id: user.user_id,
-            user_fname: user.user_fname,
-            role: user.role
-        }
+        token, // This is what the frontend needs
+        user: payload.user
     });
 
   } catch (err) {
@@ -60,7 +57,7 @@ router.post("/signin", async (req, res, next) => {
   }
 });
 
-// This route allows the frontend to verify a user's token on page load
+// It uses the authenticateToken middleware which reads the Bearer Token.
 router.get("/user-details", authenticateToken, async (req, res) => {
   try {
     const userId = req.user.user.id;
