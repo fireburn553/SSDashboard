@@ -27,7 +27,7 @@ router.post("/signin", async (req, res, next) => {
     console.log(`[AUTH] SUCCESS: Password verified for user ID ${user.user_id}`);
     
     // Fetch role for the payload
-    const roleResult = await pool.query("SELECT role_name FROM role WHERE role_id = $1", [user.role_id]);
+    const roleResult = await pool.query("SELECT role_name FROM roles WHERE role_id = $1", [user.role_id]);
     const userRole = roleResult.rows[0]?.role_name || 'User';
 
     const payload = { user: { id: user.user_id, fname: user.user_fname, role: userRole } };
@@ -48,7 +48,7 @@ router.get("/user-details", authenticateToken, async (req, res) => {
   try {
     const userId = req.user.user.id;
     const userResult = await pool.query(
-      `SELECT u.user_id, u.user_fname, r.role_name as role FROM users u JOIN role r ON u.role_id = r.role_id WHERE u.user_id = $1`,
+      `SELECT u.user_id, u.user_fname, r.role_name as role FROM users u JOIN roles r ON u.role_id = r.role_id WHERE u.user_id = $1`,
       [userId]
     );
     if (userResult.rows.length === 0) return res.status(404).json({ message: "User not found" });
