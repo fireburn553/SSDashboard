@@ -14,8 +14,7 @@ interface User {
   user_lname: string;
   role: string;
   user_email: string;
- }
-
+}
 
 // Added the 'user' state to the context type.
 interface AuthContextType {
