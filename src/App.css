@@ -41,3 +41,81 @@
 .dashboard-card .card-footer a:hover {
   color: #0d6efd; /* Bootstrap primary blue on hover */
 }
+/* Style for the currently active navigation link */
+.navbar-nav .nav-link.active {
+  font-weight: bold;
+}
+
+/* Style for active links inside a dropdown menu */
+.dropdown-menu .dropdown-item.active {
+  background-color: #5a6268; /* A slightly darker shade for contrast */
+  color: white;
+}
+
+/* Add a subtle transition for hover effects */
+.navbar-nav .nav-link, .dropdown-item {
+  transition: all 0.2s ease-in-out;
+}
+
+/* Style for a more noticeable hover effect on dropdown items */
+.dropdown-menu .dropdown-item:hover {
+  background-color: #e9ecef;
+  color: #212529;
+}
+/* This media query activates the styles only on smaller screens (like phones) */
+@media (max-width: 768px) {
+  /* Hide the original table header, as it's not needed in card view */
+  .table-responsive-cards thead {
+    display: none;
+  }
+
+  /* Each table row becomes a block-level element, styled as a card */
+  .table-responsive-cards tr {
+    display: block;
+    border: 1px solid #dee2e6;
+    margin-bottom: 1rem;
+    border-radius: 0.25rem;
+    padding: 0.5rem;
+  }
+
+  /* Each table cell becomes a block element within the card */
+  .table-responsive-cards td {
+    display: block;
+    text-align: right; /* Aligns the value (e.g., '312312') to the right */
+    font-size: 1rem;
+    border-bottom: 1px dotted #ccc; /* Adds a separator between details */
+    padding: 0.75rem 0.5rem;
+    position: relative;
+  }
+
+  /* Remove the border from the last item in the card */
+  .table-responsive-cards tr td:last-child {
+    border-bottom: 0;
+  }
+
+  /* This is where the magic happens: create the label using the ::before pseudo-element */
+  .table-responsive-cards td::before {
+    content: attr(data-label); /* The text comes from the data-label attribute */
+    position: absolute;
+    left: 0.5rem;
+    font-weight: bold;
+    text-align: left;
+    padding-right: 1rem;
+  }
+
+  /* Special handling for the 'Actions' cell to center the button */
+  .table-responsive-cards td[data-label="Actions"] {
+     text-align: center;
+     padding-top: 1rem;
+  }
+  
+  /* We don't need a label for the actions button */
+  .table-responsive-cards td[data-label="Actions"]::before {
+     display: none;
+  }
+
+  .table-responsive-cards td[data-label="Knowledge"], .table-responsive-cards td[data-label="Skills"]{
+   display: flex;
+   justify-content: end; 
+  }
+}

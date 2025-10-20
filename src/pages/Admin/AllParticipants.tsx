@@ -183,88 +183,92 @@ function AllParticipants() {
           />
         </div>
         <div className="card-body">
-          <table className="table table-hover align-middle">
-            <thead>
-              <tr>
-                <th
-                  onClick={() => requestSort("pax_lname")}
-                  style={{ cursor: "pointer" }}
-                >
-                  Name{getSortIndicator("pax_lname")}
-                </th>
-                <th
-                  onClick={() => requestSort("pax_email")}
-                  style={{ cursor: "pointer" }}
-                >
-                  Email{getSortIndicator("pax_email")}
-                </th>
-                <th
-                  onClick={() => requestSort("course_name")}
-                  style={{ cursor: "pointer" }}
-                >
-                  Course{getSortIndicator("course_name")}
-                </th>
-                <th
-                  onClick={() => requestSort("class_number")}
-                  style={{ cursor: "pointer" }}
-                >
-                  Class #{getSortIndicator("class_number")}
-                </th>
-                <th
-                  onClick={() => requestSort("gender_name")}
-                  style={{ cursor: "pointer" }}
-                >
-                  Gender{getSortIndicator("gender_name")}
-                </th>
-                <th
-                  onClick={() => requestSort("pax_remarks")}
-                  style={{ cursor: "pointer" }}
-                >
-                  Final Remarks{getSortIndicator("pax_remarks")}
-                </th>
-                <th className="text-end">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {sortedParticipants.map((p) => (
-                <tr key={p.pax_id}>
-                  <td>
-                    {p.pax_fname} {p.pax_lname}
-                  </td>
-                  <td>{p.pax_email}</td>
-                  <td>{p.course_name}</td>
-                  <td>{p.class_number}</td>
-                  <td>{p.gender_name}</td>
-                  <td>
-                    <span
-                      className={`badge ${
-                        p.pax_remarks === "passed" ? "bg-success" : "bg-danger"
-                      }`}
-                    >
-                      {p.pax_remarks}
-                    </span>
-                  </td>
-                  <td className="text-end">
-                    <a
-                      href={`http://localhost:5000/api/certificates/participant/${p.pax_id}`}
-                      className={`btn btn-sm btn-outline-secondary ${
-                        p.pax_remarks !== "passed" ? "disabled" : ""
-                      }`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      title={
-                        p.pax_remarks !== "passed"
-                          ? "Only passed participants can receive a certificate"
-                          : "Print Certificate"
-                      }
-                    >
-                      <i className="bi bi-printer"></i>
-                    </a>
-                  </td>
+          <div className="table-responsive-cards">
+            <table className="table table-hover align-middle">
+              <thead>
+                <tr>
+                  <th
+                    onClick={() => requestSort("pax_lname")}
+                    style={{ cursor: "pointer" }}
+                  >
+                    Name{getSortIndicator("pax_lname")}
+                  </th>
+                  <th
+                    onClick={() => requestSort("pax_email")}
+                    style={{ cursor: "pointer" }}
+                  >
+                    Email{getSortIndicator("pax_email")}
+                  </th>
+                  <th
+                    onClick={() => requestSort("course_name")}
+                    style={{ cursor: "pointer" }}
+                  >
+                    Course{getSortIndicator("course_name")}
+                  </th>
+                  <th
+                    onClick={() => requestSort("class_number")}
+                    style={{ cursor: "pointer" }}
+                  >
+                    Class #{getSortIndicator("class_number")}
+                  </th>
+                  <th
+                    onClick={() => requestSort("gender_name")}
+                    style={{ cursor: "pointer" }}
+                  >
+                    Gender{getSortIndicator("gender_name")}
+                  </th>
+                  <th
+                    onClick={() => requestSort("pax_remarks")}
+                    style={{ cursor: "pointer" }}
+                  >
+                    Final Remarks{getSortIndicator("pax_remarks")}
+                  </th>
+                  <th className="text-end">Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {sortedParticipants.map((p) => (
+                  <tr key={p.pax_id}>
+                    <td data-label="Name">
+                      {p.pax_fname} {p.pax_lname}
+                    </td>
+                    <td data-label="Email">{p.pax_email}</td>
+                    <td data-label="Course">{p.course_name}</td>
+                    <td data-label="Class">{p.class_number}</td>
+                    <td data-label="Gender">{p.gender_name}</td>
+                    <td data-label="Final Remarks">
+                      <span
+                        className={`badge ${
+                          p.pax_remarks === "passed"
+                            ? "bg-success"
+                            : "bg-danger"
+                        }`}
+                      >
+                        {p.pax_remarks}
+                      </span>
+                    </td>
+                    <td data-label="Actions" className="text-end">
+                      <a
+                        href={`http://localhost:5000/api/certificates/participant/${p.pax_id}`}
+                        className={`btn btn-sm btn-outline-secondary ${
+                          p.pax_remarks !== "passed" ? "disabled" : ""
+                        }`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title={
+                          p.pax_remarks !== "passed"
+                            ? "Only passed participants can receive a certificate"
+                            : "Print Certificate"
+                        }
+                      >
+                        <i className="bi bi-printer"></i>
+                      </a>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>

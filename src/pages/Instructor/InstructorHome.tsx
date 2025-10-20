@@ -217,53 +217,55 @@ function InstructorHome() {
       </div>
       <div className="card">
         <div className="card-body">
-          <table className="table table-hover">
-            <thead>
-              <tr>
-                <th>Class Number</th>
-                <th>Course Name</th>
-                <th>Start Date</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {myClasses.length === 0 ? (
+          <div className="table-responsive-cards">
+            <table className="table table-hover">
+              <thead>
                 <tr>
-                  <td colSpan={5} className="text-center">
-                    You are not assigned to any classes.
-                  </td>
+                  <th>Class Number</th>
+                  <th>Course Name</th>
+                  <th>Start Date</th>
+                  <th>Status</th>
+                  <th>Actions</th>
                 </tr>
-              ) : (
-                myClasses.map((cls) => (
-                  <tr key={cls.class_id}>
-                    <td>{cls.class_number}</td>
-                    <td>{cls.course_name}</td>
-                    <td>
-                      {new Date(cls.class_start_date).toLocaleDateString()}
-                    </td>
-                    <td>
-                      <span
-                        className={`badge ${
-                          cls.is_concluded ? "bg-secondary" : "bg-success"
-                        }`}
-                      >
-                        {cls.is_concluded ? "Concluded" : "Active"}
-                      </span>
-                    </td>
-                    <td>
-                      <Link
-                        to={`/instructor/class/${cls.class_id}`}
-                        className="btn btn-outline-primary btn-sm"
-                      >
-                        Manage
-                      </Link>
+              </thead>
+              <tbody>
+                {myClasses.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} className="text-center">
+                      You are not assigned to any classes.
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  myClasses.map((cls) => (
+                    <tr key={cls.class_id}>
+                      <td data-label="Class Number">{cls.class_number}</td>
+                      <td data-label="Course Name">{cls.course_name}</td>
+                      <td data-label="Start Date">
+                        {new Date(cls.class_start_date).toLocaleDateString()}
+                      </td>
+                      <td data-label="Status">
+                        <span
+                          className={`badge ${
+                            cls.is_concluded ? "bg-secondary" : "bg-success"
+                          }`}
+                        >
+                          {cls.is_concluded ? "Concluded" : "Active"}
+                        </span>
+                      </td>
+                      <td data-label="Actions" className="text-end">
+                        <Link
+                          to={`/instructor/class/${cls.class_id}`}
+                          className="btn btn-outline-primary btn-sm"
+                        >
+                          Manage
+                        </Link>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
