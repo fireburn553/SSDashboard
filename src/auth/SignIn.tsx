@@ -4,9 +4,9 @@ import { useAuth } from "./AuthContext";
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 function SignIn() {
-  const [username, setUsername] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const auth = useAuth();
   
@@ -15,10 +15,10 @@ function SignIn() {
     setError("");
 
     try {
-        const response = await fetch(`${API_BASE_URL}/api/auth/signin`, {
+      const response = await fetch(`${API_BASE_URL}/api/auth/signin`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: username, password }),
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
