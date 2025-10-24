@@ -1,29 +1,41 @@
-// utils/reportGenerator.js
-const puppeteer = require("puppeteer");
+const puppeteer = require("puppeteer-core");
+const chromium = require("@sparticuz/chromium");
 const { buildReportHTML } = require("./reportTemplate");
 
-async function generateClassReport(classData) {
-  const browser = await puppeteer.launch({
-    headless: "new",
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    executablePath:
-      process.env.PUPPETEER_EXECUTABLE_PATH ||
-      (await puppeteer.executablePath()),
-  });
-  const page = await browser.newPage();
+async function generateReportPDF(reportData) {
+  const htmlContent = buildReportHTML(reportData);
+  let browser = null;
 
-  const html = buildReportHTML(classData);
+  console.log("🧠 Launching server-compatible Chromium for report...");
 
-  await page.setContent(html, { waitUntil: "domcontentloaded" });
+  try {
+    // This is the critical fix for Render
+    browser = await puppeteer.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath(),
+      headless: chromium.headless,
+    });
 
-  const pdfBuffer = await page.pdf({
-    format: "A4",
-    printBackground: true,
-    margin: { top: "20px", bottom: "20px", left: "20px", right: "20px" },
-  });
+    const page = await browser.newPage();
+    await page.setContent(htmlContent, { waitUntil: "networkidle0" });
 
-  await browser.close();
-  return pdfBuffer;
+    const pdfBuffer = await page.pdf({
+      format: "A4",
+      printBackground: true,
+      margin: { top: "20px", bottom: "20px", left: "20px", right: "20px" },
+    });
+
+    console.log("✅ Report PDF generated successfully.");
+    return { success: true, pdfBuffer };
+  } catch (error) {
+    console.error("🚨 Puppeteer failed to generate report:", error);
+    return { success: false, message: error.message };
+  } finally {
+    if (browser) {
+      await browser.close();
+    }
+  }
 }
 
-module.exports = { generateClassReport };
+module.exports = { generateReportPDF };

@@ -1,40 +1,50 @@
-const puppeteer = require("puppeteer");
+const puppeteer = require("puppeteer-core");
+const chromium = require("@sparticuz/chromium");
 const { buildCertificateHTML } = require("./certificateTemplate");
 
 async function generateCertificatesPDF(classData, passedParticipants) {
   let combinedHTML = "";
-
-  // Loop through each passed participant and generate their certificate HTML
   for (const participant of passedParticipants) {
     combinedHTML += buildCertificateHTML(classData, participant);
-    // Add a page break after each certificate, except for the last one
-    if (
-      passedParticipants.indexOf(participant) <
-      passedParticipants.length - 1
-    ) {
+    if (passedParticipants.indexOf(participant) < passedParticipants.length - 1) {
       combinedHTML += '<div class="page-break"></div>';
     }
   }
 
-  const browser = await puppeteer.launch({
-    headless: "new",
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    executablePath:
-      process.env.PUPPETEER_EXECUTABLE_PATH ||
-      (await puppeteer.executablePath()),
-  });
-  const page = await browser.newPage();
+  let browser = null;
+  console.log("🧠 Launching server-compatible Chromium for certificates...");
 
-  await page.setContent(combinedHTML, { waitUntil: "domcontentloaded" });
-  const pdfBuffer = await page.pdf({
-    format: "Letter", // Standard certificate size
-    landscape: false, // Certificates are often landscape
-    printBackground: true,
-    margin: { top: "20px", bottom: "20px", left: "20px", right: "20px" },
-  });
+  try {
+    // This is the critical fix for Render
+    browser = await puppeteer.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath(),
+      headless: chromium.headless,
+    });
 
-  await browser.close();
-  return pdfBuffer;
+    const page = await browser.newPage();
+    await page.setContent(combinedHTML, { waitUntil: "networkidle0" });
+
+    const pdfBuffer = await page.pdf({
+      format: "Letter",
+      landscape: true,
+      printBackground: true,
+      margin: { top: "20px", bottom: "20px", left: "20px", right: "20px" },
+    });
+    
+    console.log("✅ Certificates PDF generated successfully.");
+    return pdfBuffer;
+
+  } catch (error) {
+    console.error("🚨 Puppeteer failed to generate certificates:", error);
+    // Return an object that indicates failure, which the route can handle
+    throw new Error("Failed to generate certificates PDF.");
+  } finally {
+    if (browser) {
+      await browser.close();
+    }
+  }
 }
 
 module.exports = { generateCertificatesPDF };

@@ -2,7 +2,7 @@
 const express = require("express");
 const router = express.Router();
 const pool = require("../database");
-const { generateClassReport } = require("../utils/reportGenerator");
+const { generateReportPDF } = require("../utils/reportGenerator");
 
 router.get("/:id/report", async (req, res) => {
   const { id } = req.params;
@@ -19,7 +19,7 @@ router.get("/:id/report", async (req, res) => {
 
     const classData = result.rows[0];
 
-    const pdfBuffer = await generateClassReport(classData);
+    const pdfBuffer = await generateReportPDF(classData);
 
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
