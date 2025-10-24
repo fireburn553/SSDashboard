@@ -29,26 +29,22 @@ const limiter = rateLimit({
 app.use(limiter);
 // Allow cookies across origins
 const allowedOrigins = [
-  'http://localhost:5173',               
-  'https://ss-dashboard-two.vercel.app' 
+  "http://localhost:5173",
+  "https://ss-dashboard-two.vercel.app",
 ];
 
-const corsOptions = {
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE", 
-  allowedHeaders: "Origin, X-Requested-With, Content-Type, Accept, Authorization",
-  credentials: true, 
-  optionsSuccessStatus: 204 
-};
-
-app.use(cors(corsOptions));
-
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
 app.use(helmet());
 app.use(express.json());
 app.use(cookieParser());
@@ -56,7 +52,7 @@ app.use(cookieParser());
 setupSwagger(app);
 
 /* Public routes */
-app.use("/api/auth", authRoutes); // login/register
+app.use("/api", authRoutes); // login/register
 app.use("/api/participant", participantsRoutes);
 
 app.use(authMiddleware);
