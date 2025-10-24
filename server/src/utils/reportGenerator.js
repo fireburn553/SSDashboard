@@ -1,36 +1,41 @@
-// utils/reportGenerator.js
-const puppeteer = require("puppeteer");
+const puppeteer = require("puppeteer-core");
+const chromium = require("@sparticuz/chromium");
 const { buildReportHTML } = require("./reportTemplate");
 
-// ✅ Helper function to properly find Chrome in Render’s environment
-async function getBrowser() {
-  const executablePath = await puppeteer.executablePath();
-  console.log("Using Chrome executable:", executablePath);
+async function generateReportPDF(reportData) {
+  const htmlContent = buildReportHTML(reportData);
+  let browser = null;
 
-  return puppeteer.launch({
-    headless: true,
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    executablePath,
-  });
+  console.log("🧠 Launching server-compatible Chromium for report...");
+
+  try {
+    // This is the critical fix for Render
+    browser = await puppeteer.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath(),
+      headless: chromium.headless,
+    });
+
+    const page = await browser.newPage();
+    await page.setContent(htmlContent, { waitUntil: "networkidle0" });
+
+    const pdfBuffer = await page.pdf({
+      format: "A4",
+      printBackground: true,
+      margin: { top: "20px", bottom: "20px", left: "20px", right: "20px" },
+    });
+
+    console.log("✅ Report PDF generated successfully.");
+    return { success: true, pdfBuffer };
+  } catch (error) {
+    console.error("🚨 Puppeteer failed to generate report:", error);
+    return { success: false, message: error.message };
+  } finally {
+    if (browser) {
+      await browser.close();
+    }
+  }
 }
 
-async function generateClassReport(classData) {
-  // ✅ Use the helper to launch Chrome safely
-  const browser = await getBrowser();
-  const page = await browser.newPage();
-
-  const html = buildReportHTML(classData);
-
-  await page.setContent(html, { waitUntil: "domcontentloaded" });
-
-  const pdfBuffer = await page.pdf({
-    format: "A4",
-    printBackground: true,
-    margin: { top: "20px", bottom: "20px", left: "20px", right: "20px" },
-  });
-
-  await browser.close();
-  return pdfBuffer;
-}
-
-module.exports = { generateClassReport };
+module.exports = { generateReportPDF };

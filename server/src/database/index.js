@@ -3,21 +3,35 @@ require("dotenv").config();
 
 const isProduction = process.env.NODE_ENV === "production";
 
-const pool = new Pool({
-  connectionString: process.env.DB_URL, // same URL
-  ssl: isProduction
-    ? { rejectUnauthorized: false } // required for cloud DB
-    : false,
-});
+let pool;
+
+if (isProduction) {
+  // 🟢 Production (Render)
+  pool = new Pool({
+    connectionString: process.env.DB_URL,
+    ssl: {
+      rejectUnauthorized: false,
+    },
+  });
+  console.log("📦 Connected to PRODUCTION database");
+} else {
+  // 💻 Development (local)
+  pool = new Pool({
+    connectionString: process.env.DB_URL,
+        ssl: {
+      rejectUnauthorized: false,
+    },
+  });
+  console.log("📦 Connected to DEVELOPMENT database");
+}
 
 module.exports = {
   async query(text, params) {
     try {
       const res = await pool.query(text, params);
-      console.log("executed query", { text });
       return res;
     } catch (error) {
-      console.error("error in query", { text, error });
+      console.error("❌ Database query error:", { text, error });
       throw error;
     }
   },
