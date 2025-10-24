@@ -28,7 +28,7 @@ async function generateReportPDF(reportData) {
     });
 
     console.log("✅ Report PDF generated successfully.");
-    return { success: true, pdfBuffer };
+    return pdfBuffer;
   } catch (error) {
     console.error("🚨 Puppeteer failed to generate report:", error);
     return { success: false, message: error.message };
