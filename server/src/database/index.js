@@ -1,19 +1,14 @@
 const { Pool } = require("pg");
 require("dotenv").config();
 
-let pool;
-if (process.env.NODE_ENV == "development") {
-  pool = new Pool({
-    connectionString: process.env.DB_URL,
-    ssl: {
-      rejectUnauthorized: false,
-    },
-  });
-} else {
-  pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-  });
-}
+const isProduction = process.env.NODE_ENV === "production";
+
+const pool = new Pool({
+  connectionString: process.env.DB_URL, // same URL
+  ssl: isProduction
+    ? { rejectUnauthorized: false } // required for cloud DB
+    : false,
+});
 
 module.exports = {
   async query(text, params) {
