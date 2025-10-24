@@ -2,76 +2,99 @@ const express = require("express");
 const router = express.Router();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const pool = require("../database");
-const authenticateToken = require("../middleware/auth"); // Assuming you have this middleware
+const pool = require("../database"); // Adjust if your db export is different
+const { sanitizeString } = require("../utils/validateInput");
 
-router.post("/signin", async (req, res, next) => {
+router.post("/login", async (req, res, next) => {
   try {
     const { email, password } = req.body;
-    console.log(`[AUTH] Received signin request for: ${email}`);
 
     const userResult = await pool.query(
-      "SELECT * FROM users WHERE user_email = $1",
+      `SELECT u.user_id, u.user_email, u.user_password,
+              r.role_name AS role, r.role_id, 
+              u.user_fname, u.user_lname,
+              s.account_status_name, u.account_status_id
+       FROM users u
+       JOIN roles r ON u.role_id = r.role_id
+       JOIN account_status s ON u.account_status_id = s.account_status_id
+       WHERE u.user_email = $1`,
       [email]
     );
 
     if (userResult.rows.length === 0) {
-      console.error(`[AUTH] FAILED: User not found for email: ${email}`);
-      return res.status(401).json({ message: "Invalid email or password." });
+      return res.status(401).json({
+        success: false,
+        message: "Invalid email or password.",
+      });
     }
 
     const user = userResult.rows[0];
-    console.log(`[AUTH] SUCCESS: Found user ID ${user.user_id}`);
 
-    const validPassword = await bcrypt.compare(password, user.user_password);
-    if (!validPassword) {
-      console.error(`[AUTH] FAILED: Password mismatch for user ID ${user.user_id}`);
-      return res.status(401).json({ message: "Invalid email or password." });
+    // --- THIS IS THE UPDATED LOGIC ---
+    // Now checks for all inactive/disallowed statuses
+    const disallowedStatuses = ["Pending", "Suspended", "Rejected", "Disabled"];
+
+    if (disallowedStatuses.includes(user.account_status_name)) {
+      // Send a specific message if the account is disabled or rejected
+      if (
+        user.account_status_name === "Disabled" ||
+        user.account_status_name === "Rejected"
+      ) {
+        return res.status(403).json({
+          success: false,
+          message:
+            "Your account is currently disabled. Please contact an administrator.",
+        });
+      }
+      // Send a different message for pending/suspended accounts
+      return res.status(403).json({
+        success: false,
+        message:
+          "Your account is currently inactive. Please contact an administrator.",
+      });
     }
 
-    console.log(`[AUTH] SUCCESS: Password verified for user ID ${user.user_id}`);
+    // Validate password
+    const valid = await bcrypt.compare(password, user.user_password);
+    if (!valid) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid email or password." });
+    }
 
-    // ✅ Fetch role
-    const roleResult = await pool.query(
-      "SELECT role_name FROM roles WHERE role_id = $1",
-      [user.role_id]
+    // Generate JWT (No changes here)
+    const token = jwt.sign(
+      {
+        user_id: user.user_id,
+        email: user.user_email,
+        role: user.role,
+        role_id: user.role_id,
+        user_fname: user.user_fname, // Include first name in token for header
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
     );
-    const userRole = roleResult.rows[0]?.role_name || "User";
 
-    const payload = { user: { id: user.user_id, fname: user.user_fname, role: userRole } };
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: "24h" });
-
-    // ✅ Send token as secure, HTTP-only cookie
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // true on Render
+      secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      maxAge: 60 * 60 * 1000,
     });
 
-    // ✅ Also send token + user in JSON (optional, for immediate frontend use)
-    res.json({ success: true, user: payload.user });
+    res.json({ user: { ...user, user_password: undefined } });
   } catch (err) {
-    console.error("[AUTH] FATAL ERROR during signin:", err);
     next(err);
   }
 });
 
-
-
-// This route verifies the token on page load
-router.get("/user-details", authenticateToken, async (req, res) => {
-  try {
-    const userId = req.user.user.id;
-    const userResult = await pool.query(
-      `SELECT u.user_id, u.user_fname, r.role_name as role FROM users u JOIN roles r ON u.role_id = r.role_id WHERE u.user_id = $1`,
-      [userId]
-    );
-    if (userResult.rows.length === 0) return res.status(404).json({ message: "User not found" });
-    res.json(userResult.rows[0]);
-  } catch (err) {
-    res.status(500).send("Server Error");
-  }
+router.post("/logout", (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+  });
+  res.json({ message: "Logged out successfully" });
 });
 
 router.post("/register", async (req, res) => {
@@ -91,10 +114,14 @@ router.post("/register", async (req, res) => {
     user_authority_number,
     gender_id,
   } = req.body;
+
   // Force instructor role_id (replace 2 with the actual value in your roles table)
   const instructorRoleId = 2;
+
   try {
+    // Hash password
     const hashedPassword = await bcrypt.hash(user_password, 10);
+
     const result = await pool.query(
       `INSERT INTO users (
         user_fname, user_mname, user_lname, user_bday, user_complete_address,
@@ -121,6 +148,7 @@ router.post("/register", async (req, res) => {
         gender_id,
       ]
     );
+
     res.status(201).json({
       user_id: result.rows[0].user_id,
       message: "Instructor account created (pending approval)",
@@ -140,6 +168,7 @@ router.get("/check-auth", (req, res) => {
   try {
     const token = req.cookies.token;
     if (!token) return res.status(401).json({ message: "No token" });
+
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     res.json({ valid: true, user: decoded });
   } catch {
