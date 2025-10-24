@@ -85,7 +85,10 @@ function ParticipantRegistration() {
       try {
         // First, check if the token is valid
         const validationRes = await fetch(
-          `${API_BASE_URL}/api/participant/invite/${inviteToken}`
+          `${API_BASE_URL}/api/participant/invite/${inviteToken}`,
+          {
+            credentials: "include",
+          }
         );
         const validationData = await validationRes.json();
 
@@ -97,8 +100,12 @@ function ParticipantRegistration() {
 
         // If token is valid, fetch the dropdown options
         const [heaRes, csoRes] = await Promise.all([
-          fetch(`${API_BASE_URL}/api/participant/hea`),
-          fetch(`${API_BASE_URL}/api/participant/csos`),
+          fetch(`${API_BASE_URL}/api/participant/hea`, {
+            credentials: "include",
+          }),
+          fetch(`${API_BASE_URL}/api/participant/csos`, {
+            credentials: "include",
+          }),
         ]);
 
         const heaData = await heaRes.json();
@@ -158,6 +165,7 @@ function ParticipantRegistration() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
+          credentials: "include",
         }
       );
 
