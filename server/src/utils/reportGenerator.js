@@ -2,14 +2,21 @@
 const puppeteer = require("puppeteer");
 const { buildReportHTML } = require("./reportTemplate");
 
-async function generateClassReport(classData) {
-  const browser = await puppeteer.launch({
-    headless: "new",
+// ✅ Helper function to properly find Chrome in Render’s environment
+async function getBrowser() {
+  const executablePath = await puppeteer.executablePath();
+  console.log("Using Chrome executable:", executablePath);
+
+  return puppeteer.launch({
+    headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    executablePath:
-      process.env.PUPPETEER_EXECUTABLE_PATH ||
-      (await puppeteer.executablePath()),
+    executablePath,
   });
+}
+
+async function generateClassReport(classData) {
+  // ✅ Use the helper to launch Chrome safely
+  const browser = await getBrowser();
   const page = await browser.newPage();
 
   const html = buildReportHTML(classData);

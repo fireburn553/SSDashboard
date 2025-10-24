@@ -1,6 +1,18 @@
 const puppeteer = require("puppeteer");
 const { buildCertificateHTML } = require("./certificateTemplate");
 
+// ✅ Helper to properly find Chrome executable
+async function getBrowser() {
+  const executablePath = await puppeteer.executablePath();
+  console.log("Using Chrome executable:", executablePath);
+
+  return puppeteer.launch({
+    headless: true,
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+    executablePath,
+  });
+}
+
 async function generateCertificatesPDF(classData, passedParticipants) {
   let combinedHTML = "";
 
@@ -16,19 +28,14 @@ async function generateCertificatesPDF(classData, passedParticipants) {
     }
   }
 
-  const browser = await puppeteer.launch({
-    headless: "new",
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    executablePath:
-      process.env.PUPPETEER_EXECUTABLE_PATH ||
-      (await puppeteer.executablePath()),
-  });
+  // ✅ Use the helper to launch Chrome correctly on Render
+  const browser = await getBrowser();
   const page = await browser.newPage();
 
   await page.setContent(combinedHTML, { waitUntil: "domcontentloaded" });
   const pdfBuffer = await page.pdf({
-    format: "Letter", // Standard certificate size
-    landscape: false, // Certificates are often landscape
+    format: "A4",
+    landscape: false,
     printBackground: true,
     margin: { top: "20px", bottom: "20px", left: "20px", right: "20px" },
   });
