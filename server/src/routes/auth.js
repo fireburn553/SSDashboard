@@ -82,6 +82,13 @@ router.post("/login", async (req, res, next) => {
       maxAge: 60 * 60 * 1000, // 1 hour
     });
 
+    console.log("🔐 Login successful for:", user.user_email);
+    console.log("Environment:", process.env.NODE_ENV);
+    console.log("Cookie being set:", {
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    });
+
     res.json({ user: { ...user, user_password: undefined } });
   } catch (err) {
     next(err);
@@ -163,6 +170,9 @@ router.post("/register", async (req, res) => {
 });
 
 router.get("/check-auth", (req, res) => {
+  console.log("🧾 Cookies received:", req.cookies);
+  console.log("Origin of request:", req.headers.origin);
+
   const token = req.cookies.token;
   if (!token) return res.status(401).json({ message: "No token" });
 

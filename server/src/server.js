@@ -27,6 +27,8 @@ const limiter = rateLimit({
 });
 
 app.use(limiter);
+app.set("trust proxy", 1);
+
 // Allow cookies across origins
 const allowedOrigins = [
   "http://localhost:5173",
