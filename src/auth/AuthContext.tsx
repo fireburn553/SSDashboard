@@ -80,7 +80,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Fetch wrapper for authenticated requests (Unchanged)
   const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
-    const response = await fetch(url, { ...options, credentials: "include" });
+    const response = await fetch(`${API_BASE_URL}${url}`, {
+      ...options,
+      credentials: "include",
+    });
     if (response.status === 401 || response.status === 403) {
       await logout();
     }
