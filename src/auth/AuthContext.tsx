@@ -28,13 +28,12 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// INACTIVITY TIME LIMIT (Unchanged)
+// INACTIVITY TIME LIMIT
 const INACTIVITY_LIMIT = 15 * 60 * 1000; // Corrected to 15 minutes
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  // --- CHANGE 3: Initialize State from localStorage ---
   // We now also get the 'user' object from localStorage on initial load.
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(
     () => !!localStorage.getItem("isLoggedIn")
@@ -49,7 +48,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const inactivityTimer = useRef<NodeJS.Timeout | null>(null);
 
-  // --- CHANGE 4: Updated Login Function ---
   // It now accepts the user data from the sign-in component.
   const login = (userData: User) => {
     setIsLoggedIn(true);
@@ -60,7 +58,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     startInactivityTimer();
   };
 
-  // --- CHANGE 5: Updated Logout Function ---
   // It now clears the user state and removes the user from localStorage.
   const logout = async () => {
     try {
@@ -90,7 +87,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     return response;
   };
 
-  // --- CHANGE 6: Updated checkAuth to handle user data ---
   // Assume '/check-auth' returns the user data if the session is valid
   const checkAuth = async () => {
     try {
@@ -158,7 +154,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   return (
     <AuthContext.Provider
-      // --- CHANGE 7: Provide 'user' in the context value ---
       value={{ isLoggedIn, loading, user, login, logout, fetchWithAuth }}
     >
       {children}
