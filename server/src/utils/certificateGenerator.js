@@ -6,7 +6,10 @@ async function generateCertificatesPDF(classData, passedParticipants) {
   let combinedHTML = "";
   for (const participant of passedParticipants) {
     combinedHTML += buildCertificateHTML(classData, participant);
-    if (passedParticipants.indexOf(participant) < passedParticipants.length - 1) {
+    if (
+      passedParticipants.indexOf(participant) <
+      passedParticipants.length - 1
+    ) {
       combinedHTML += '<div class="page-break"></div>';
     }
   }
@@ -28,14 +31,13 @@ async function generateCertificatesPDF(classData, passedParticipants) {
 
     const pdfBuffer = await page.pdf({
       format: "Letter",
-      landscape: true,
+      landscape: false,
       printBackground: true,
       margin: { top: "20px", bottom: "20px", left: "20px", right: "20px" },
     });
-    
+
     console.log("✅ Certificates PDF generated successfully.");
     return pdfBuffer;
-
   } catch (error) {
     console.error("🚨 Puppeteer failed to generate certificates:", error);
     // Return an object that indicates failure, which the route can handle
