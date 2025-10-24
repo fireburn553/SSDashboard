@@ -30,8 +30,10 @@ function SignIn() {
       }
 
       // ✅ Call login() from AuthContext to update state and localStorage
-      login(data.user); // Pass the user data received from the backend
+      login(data.user);
+      console.log("User data received from the backend:", data.user); // Pass the user data received from the backend
       const userRole = data.user.role;
+      console.log("User role:", userRole);
       // ✅ Redirect to protected route
       if (userRole === "Admin") {
         navigate("/admin"); // Or your main admin dashboard route
