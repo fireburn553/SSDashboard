@@ -82,12 +82,14 @@ const AddParticipantModal: React.FC<AddParticipantModalProps> = ({
     // This is the same fetchOptions from your registration form
     const fetchOptions = async () => {
       try {
-        const heaRes = await fetch(`${API_BASE_URL}/api/participant/hea`);
+        const heaRes = await fetch(`${API_BASE_URL}/api/participant/hea`, {
+          credentials: "include",
+        });
         const heaData = await heaRes.json();
         setHeas(heaData);
-        const csoRes = await fetch(
-          `${API_BASE_URL}/api/participant/csos`
-        );
+        const csoRes = await fetch(`${API_BASE_URL}/api/participant/csos`, {
+          credentials: "include",
+        });
         const csoData = await csoRes.json();
         setCsos(csoData);
       } catch (err) {
