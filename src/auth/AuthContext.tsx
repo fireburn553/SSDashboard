@@ -80,7 +80,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // Fetch wrapper for authenticated requests (Unchanged)
   const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
-    const response = await fetch(`${API_BASE_URL}${url}`, {
+    const response = await fetch(`${url}`, {
       ...options,
       credentials: "include",
     });
