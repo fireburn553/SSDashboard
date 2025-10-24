@@ -61,8 +61,9 @@ app.use("/api/admin", roleMiddleware(["Admin"]), adminRoutes);
 app.use("/api/instructor", roleMiddleware(["Instructor"]), instructorsRoutes);
 app.use("/api/grades", gradesRoutes);
 app.use("/api/report", reportRoutes);
-app.use(errorHandler);
 app.use("/api/certificates", certificateRoutes);
+app.use(errorHandler);
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
