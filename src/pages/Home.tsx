@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 export default function LandingPage() {
   return (
     <section
@@ -21,8 +23,8 @@ export default function LandingPage() {
 
         {/* Buttons */}
         <div className="d-flex justify-content-center gap-3">
-          <a
-            href="/signin"
+          <Link
+            to="/signin"
             className="btn btn-lg"
             style={{
               backgroundColor: "#E41E26", // Red button
@@ -32,10 +34,10 @@ export default function LandingPage() {
             }}
           >
             Sign In
-          </a>
+          </Link>
 
-          <a
-            href="/signup"
+          <Link
+            to="/signup"
             className="btn btn-lg"
             style={{
               backgroundColor: "#28A745", // Green button
@@ -45,7 +47,7 @@ export default function LandingPage() {
             }}
           >
             Register
-          </a>
+          </Link>
         </div>
       </div>
     </section>
