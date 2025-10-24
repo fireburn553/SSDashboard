@@ -1,28 +1,29 @@
 const { Pool } = require("pg");
 require("dotenv").config();
 
-const connectionString = process.env.DATABASE_URL || process.env.DB_URL;
-
-if (!connectionString) {
-  console.error("FATAL ERROR: DATABASE_URL environment variable is not set.");
-  process.exit(1);
+let pool;
+if (process.env.NODE_ENV == "development") {
+  pool = new Pool({
+    connectionString: process.env.DB_URL,
+    ssl: {
+      rejectUnauthorized: false,
+    },
+  });
+} else {
+  pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+  });
 }
 
-const pool = new Pool({
-  connectionString,
-  ssl: {
-    rejectUnauthorized: false,
-  },
-});
-
-pool.on("connect", () => {
-  console.log("[DB INIT] Successfully connected to the database.");
-});
-
-pool.on("error", (err) => {
-  console.error("[DB INIT] Database pool error:", err);
-});
-
 module.exports = {
-  query: (text, params) => pool.query(text, params),
+  async query(text, params) {
+    try {
+      const res = await pool.query(text, params);
+      console.log("executed query", { text });
+      return res;
+    } catch (error) {
+      console.error("error in query", { text, error });
+      throw error;
+    }
+  },
 };
