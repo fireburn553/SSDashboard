@@ -91,8 +91,8 @@ router.post("/login", async (req, res, next) => {
 router.post("/logout", (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
-    sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
   });
   res.json({ message: "Logged out successfully" });
 });
@@ -154,25 +154,26 @@ router.post("/register", async (req, res) => {
       message: "Instructor account created (pending approval)",
     });
   } catch (err) {
+    console.error("Registration error:", err.message);
     if (err.code === "23505") {
-      // unique_violation (duplicate email)
-      res.status(409).json({ message: "Email already exists" });
-    } else {
-      console.error("Registration error:", err); // 👈 log real error
-      res.status(500).json({ message: "Server error" });
+      return res.status(409).json({ message: "Email already exists" });
     }
+    next(err);
   }
 });
 
 router.get("/check-auth", (req, res) => {
-  try {
-    const token = req.cookies.token;
-    if (!token) return res.status(401).json({ message: "No token" });
+  const token = req.cookies.token;
+  if (!token) return res.status(401).json({ message: "No token" });
 
+  try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     res.json({ valid: true, user: decoded });
-  } catch {
-    res.status(401).json({ message: "Invalid or expired token" });
+  } catch (err) {
+    if (err.name === "TokenExpiredError") {
+      return res.status(401).json({ message: "Token expired" });
+    }
+    res.status(401).json({ message: "Invalid token" });
   }
 });
 
