@@ -1,25 +1,10 @@
-const db = require('../database'); // Adjust path to your db connection
+const pool = require('../database'); // This 'db' is your 'pool'
 
-/**
- * Ensures all passed participants in a class have a certificate number.
- * This function is "idempotent" - it is safe to call multiple times.
- * It will only write new numbers for participants who passed but
- * still have certificate_number = NULL.
- *
- * @param {string|number} classId The ID of the class.
- * @returns {Promise<Array<Object>>} A promise that resolves to the 
- * full list of ALL passed participants, guaranteed to have 
- * their certificate numbers.
- */
 const ensureCertificateNumbers = async (classId) => {
-  // Use a transaction to ensure all or nothing is written
-  const client = await db.getClient(); // Assumes you use pg.Pool
-
   try {
-    await client.query('BEGIN'); // Start transaction
 
     // Step A: Get the Class End Date (from the 'class' table)
-    const classResult = await client.query(
+    const classResult = await pool.query(
       'SELECT class_end_date FROM class WHERE class_id = $1',
       [classId]
     );
@@ -35,7 +20,7 @@ const ensureCertificateNumbers = async (classId) => {
     const datePart = `${month}${year}-${day}`; // "1025-31"
 
     // Step B: Find the next available sequence number
-    const countResult = await client.query(
+    const countResult = await pool.query(
       'SELECT COUNT(*) as existing_certs FROM participant WHERE class_id = $1 AND certificate_number IS NOT NULL',
       [classId]
     );
@@ -43,11 +28,12 @@ const ensureCertificateNumbers = async (classId) => {
     let counter = parseInt(countResult.rows[0].existing_certs, 10) + 1;
 
     // Step C: Find all passed participants who DON'T have a number
-    const newPassers = await client.query(
+    // FIX: Using lowercase 'passed' to match your code
+    const newPassers = await pool.query(
       `SELECT pax_id
        FROM participant
        WHERE class_id = $1 
-         AND pax_remarks = 'passed'
+         AND pax_remarks = 'passed' 
          AND certificate_number IS NULL
        ORDER BY
          pax_lname, pax_fname, pax_id`, // Stable order is essential
@@ -59,9 +45,10 @@ const ensureCertificateNumbers = async (classId) => {
       console.log(`Issuing ${newPassers.rows.length} new certificates for class ${classId}.`);
       for (const participant of newPassers.rows) {
         const sequenceNumber = String(counter).padStart(2, '0');
+        // This format matches your example: CC-1025-3101
         const certNumber = `CC-${datePart}${sequenceNumber}`;
 
-        await client.query(
+        await pool.query(
           'UPDATE participant SET certificate_number = $1 WHERE pax_id = $2',
           [certNumber, participant.pax_id]
         );
@@ -69,10 +56,10 @@ const ensureCertificateNumbers = async (classId) => {
       }
     }
 
-    await client.query('COMMIT'); // All good! Save the changes.
+    await pool.query('COMMIT'); // All good! Save the changes.
 
     // Step E: Return the FULL list of passed participants
-    const allPassedParticipants = await client.query(
+    const allPassedParticipants = await pool.query(
       `SELECT *
        FROM participant
        WHERE class_id = $1 AND pax_remarks = 'passed'
@@ -83,12 +70,9 @@ const ensureCertificateNumbers = async (classId) => {
 
     return allPassedParticipants.rows;
 
-  } catch (e) {
-    await client.query('ROLLBACK'); // Something went wrong, undo all updates
-    console.error('Failed to issue certificate numbers:', e);
-    throw e; // Pass the error to the API route
-  } finally {
-    client.release(); // Release the database client
+  } catch (err) {
+    console.error('Error in ensureCertificateNumbers:', err);
+    res.status(500).json({ message: 'Server error during certificate number assignment.' });
   }
 };
 
