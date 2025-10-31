@@ -2,11 +2,13 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../database");
 const { generateCertificatesPDF } = require("../utils/certificateGenerator"); // We will create this file next
+const { ensureCertificateNumbers } = require("../utils/certificateNumberUtil");
 
 router.get("/class/:id", async (req, res, next) => {
   const { id } = req.params;
 
   try {
+    await ensureCertificateNumbers(id);
     // 1. Fetch the main class data from your view
     const classResult = await pool.query(
       `SELECT * FROM report_full_class_details WHERE class_id = $1`,
