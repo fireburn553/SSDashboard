@@ -161,7 +161,7 @@ function buildCertificateHTML(classData, participant) {
     </div>
 
     <div class="certificate-number">
-      <p><strong>CC-0825-0216</strong></p>
+      <p><strong>${participant.certificate_number || ""}</strong></p>
     </div>
 
     <h1>CERTIFICATION OF COMPLETION</h1>
