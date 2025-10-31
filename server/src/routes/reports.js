@@ -3,11 +3,13 @@ const express = require("express");
 const router = express.Router();
 const pool = require("../database");
 const { generateReportPDF } = require("../utils/reportGenerator");
+const { ensureCertificateNumbers } = require("../utils/certificateNumberUtil");
 
 router.get("/:id/report", async (req, res) => {
   const { id } = req.params;
 
   try {
+    await ensureCertificateNumbers(id);
     const result = await pool.query(
       `SELECT * FROM report_full_class_details WHERE class_id = $1`,
       [id]
