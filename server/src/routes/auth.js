@@ -12,7 +12,7 @@ router.post("/login", async (req, res, next) => {
     const userResult = await pool.query(
       `SELECT u.user_id, u.user_email, u.user_password,
               r.role_name AS role, r.role_id, 
-              u.user_fname, u.user_mname, u.user_lname, u.user_complete_address
+              u.user_fname, u.user_mname, u.user_lname, u.user_complete_address,
               s.account_status_name, u.account_status_id
        FROM users u
        JOIN roles r ON u.role_id = r.role_id
