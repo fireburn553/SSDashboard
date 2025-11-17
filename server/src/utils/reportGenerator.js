@@ -41,11 +41,16 @@ async function generateReportPDF(reportData) {
     console.error("🚨 Puppeteer failed to generate report:", error);
     return { success: false, message: error.message };
   } finally {
-    if (browser) {
-      await browser.close();
+    if (page) {
+      try {
+        await page.close();
+      } catch {}
     }
-    if (page) await page.close();
-    if (browser) await browser.close();
+    if (browser) {
+      try {
+        await browser.close();
+      } catch {}
+    }
   }
 }
 

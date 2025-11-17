@@ -51,11 +51,16 @@ async function generateCertificatesPDF(classData, passedParticipants) {
     // Return an object that indicates failure, which the route can handle
     throw new Error("Failed to generate certificates PDF.");
   } finally {
-    if (browser) {
-      await browser.close();
+    if (page) {
+      try {
+        await page.close();
+      } catch {}
     }
-    if (page) await page.close();
-    if (browser) await browser.close();
+    if (browser) {
+      try {
+        await browser.close();
+      } catch {}
+    }
   }
 }
 
