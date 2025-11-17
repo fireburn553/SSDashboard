@@ -29,9 +29,11 @@ function buildReportHTML(classData) {
       return `
       <tr>
         <td style="text-align:left;">
-          <span class="bold">${idx + 1}. ${p.pax_lname.toUpperCase()}, ${
-        p.pax_fname.toUpperCase()
-      } ${p.pax_mname.toUpperCase() || ""}<br></span>
+          <span class="bold">${
+            idx + 1
+          }. ${p.pax_lname.toUpperCase()}, ${p.pax_fname.toUpperCase()} ${
+        p.pax_mname.toUpperCase() || ""
+      }<br></span>
           ${p.pax_address || ""}<br>
           ${p.pax_number || ""}
         </td>
@@ -48,7 +50,7 @@ function buildReportHTML(classData) {
   const mainInstructor = `
             <div><u class="bold">${classData.main_instructor_name}</u></div>
             <div><u class="bold">${classData.user_authority_number}</u></div>
-            <div><u class="bold">${classData.main_instrcutor_address}</u></div>
+            <div><u class="bold">${classData.main_instructor_address}</u></div>
   `;
 
   const instructorRows = coInstructors
@@ -155,7 +157,7 @@ ${numberToWords(
         }</u></div>
       </div>
       <p>Length of each class period: Number of class period:<u class="bold">${
-        classData.class_hour || ""
+        classData.class_total_hours / classData.class_total_days || ""
       } hour/s</u> Total Number of Days:<u class="bold">${
     classData.class_total_days
   }</u> day/s</u> Total Number of Hours:<u class="bold">${
