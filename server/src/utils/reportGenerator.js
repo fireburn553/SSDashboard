@@ -11,7 +11,15 @@ async function generateReportPDF(reportData) {
   try {
     // This is the critical fix for Render
     browser = await puppeteer.launch({
-      args: chromium.args,
+      args: [
+        ...chromium.args,
+        "--disable-dev-shm-usage",
+        "--disable-gpu",
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--single-process",
+        "--no-zygote",
+      ],
       defaultViewport: chromium.defaultViewport,
       executablePath: await chromium.executablePath(),
       headless: chromium.headless,
@@ -36,6 +44,8 @@ async function generateReportPDF(reportData) {
     if (browser) {
       await browser.close();
     }
+    if (page) await page.close();
+    if (browser) await browser.close();
   }
 }
 
